@@ -4,15 +4,15 @@ public class NumberExpressionSyntax : ExpressionSyntax
 {
     public override TokenType Type => TokenType.NumberExpressionToken;
 
-    private readonly SyntaxToken _token;
+    public readonly SyntaxToken NumberToken;
 
-    public NumberExpressionSyntax(SyntaxToken token)
+    public NumberExpressionSyntax(SyntaxToken numberToken)
     {
-        _token = token;
+        NumberToken = numberToken;
     }
 
     public override IEnumerable<SyntaxNode> GetChildren()
     {
-        yield return _token;
+        yield return NumberToken;
     }
 }

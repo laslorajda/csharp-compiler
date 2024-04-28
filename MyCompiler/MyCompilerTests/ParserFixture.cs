@@ -6,7 +6,7 @@ namespace MyCompilerTests;
 public class ParserFixture
 {
     [Fact]
-    public void EmptyStringShouldReturnNothing()
+    public void EmptyStringShouldThrowException()
     {
         var text = string.Empty;
         Action a = () => new Parser(text).Parse();
