@@ -44,13 +44,29 @@ public class Lexer
                 : new SyntaxToken(TokenType.BadResultToken, null);
         }
 
-        return Current switch
+        switch (Current)
         {
-            '+' => new SyntaxToken(TokenType.PlusToken, null),
-            '-' => new SyntaxToken(TokenType.MinusToken, null),
-            '*' => new SyntaxToken(TokenType.StarToken, null),
-            '/' => new SyntaxToken(TokenType.SlashToken, null),
-            _ => new SyntaxToken(TokenType.BadResultToken, null)
-        };
+            case '+':
+                _position++;
+                return new SyntaxToken(TokenType.PlusToken, null);
+            case '-':
+                _position++;
+                return new SyntaxToken(TokenType.MinusToken, null);
+            case '*':
+                _position++;
+                return new SyntaxToken(TokenType.StarToken, null);
+            case '/':
+                _position++;
+                return new SyntaxToken(TokenType.SlashToken, null);
+            case '(':
+                _position++;
+                return new SyntaxToken(TokenType.OpenParenthesisToken, null);
+            case ')':
+                _position++;
+                return new SyntaxToken(TokenType.CloseParenthesisToken, null);
+            default:
+                _position++;
+                return new SyntaxToken(TokenType.BadResultToken, null);
+        }
     }
 }
