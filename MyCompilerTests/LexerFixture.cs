@@ -53,9 +53,9 @@ public class LexerFixture
     {
         var lexer = new Lexer("()");
         var token = lexer.GetNextToken();
-        token.Kind.Should().Be(SyntaxKind.OpenParenthesisToken);
+        token.Kind.Should().Be(SyntaxKind.OpenParenthesis);
         
         token = lexer.GetNextToken();
-        token.Kind.Should().Be(SyntaxKind.CloseParenthesisToken);
+        token.Kind.Should().Be(SyntaxKind.CloseParenthesis);
     }
 }

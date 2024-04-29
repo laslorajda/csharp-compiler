@@ -46,7 +46,19 @@ public sealed class Parser
 
     private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
     {
-        var left = ParsePrimary();
+        ExpressionSyntax left;
+        var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
+
+        if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
+        {
+            var operatorToken = NextToken();
+            var operand = ParseExpression(unaryOperatorPrecedence);
+            left = new UnaryExpressionSyntax(operatorToken, operand);
+        }
+        else
+        {
+            left = ParsePrimary();
+        }
 
         while (true)
         {
@@ -66,12 +78,12 @@ public sealed class Parser
 
     private ExpressionSyntax ParsePrimary()
     {
-        if (Current.Kind == SyntaxKind.OpenParenthesisToken)
+        if (Current.Kind == SyntaxKind.OpenParenthesis)
         {
             var left = NextToken();
             var expression = ParseExpression();
             var right = NextToken();
-            if (right.Kind != SyntaxKind.CloseParenthesisToken)
+            if (right.Kind != SyntaxKind.CloseParenthesis)
             {
                 throw new Exception($"Expected ')' but got '{right.Value}'");
             }
@@ -84,7 +96,7 @@ public sealed class Parser
             throw new Exception($"Unexpected token <{Current.Kind}>");
         }
 
-        return new NumberExpressionSyntax(NextToken());
+        return new LiteralExpressionSyntax(NextToken());
     }
 
 }
