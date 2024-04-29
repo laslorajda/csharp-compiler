@@ -4,7 +4,7 @@ public class Lexer
 {
     private readonly string _text;
     private int _position;
-    
+
     public Lexer(string text)
     {
         _text = text;
@@ -13,13 +13,13 @@ public class Lexer
     private char Current => Peek(0);
 
     private char Lookahead => Peek(1);
-    
+
     private char Peek(int offset)
     {
         var index = _position + offset;
         return index >= _text.Length ? '\0' : _text[index];
     }
-    
+
     public SyntaxToken GetNextToken()
     {
         if (_position >= _text.Length)
@@ -33,17 +33,18 @@ public class Lexer
             {
                 _position++;
             }
-            
+
             return new SyntaxToken(SyntaxKind.WhitespaceToken, null, string.Empty);
         }
-        
-        if(char.IsDigit(Current))
+
+        if (char.IsDigit(Current))
         {
             var start = _position;
             while (_position < _text.Length && char.IsDigit(Current))
             {
                 _position++;
             }
+
             var length = _position - start;
             var text = _text.Substring(start, length);
 
@@ -60,7 +61,7 @@ public class Lexer
             {
                 _position++;
             }
-            
+
             var length = _position - start;
             var text = _text.Substring(start, length);
             var kind = SyntaxFacts.GetKeywordKind(text);
@@ -88,6 +89,11 @@ public class Lexer
                 _position++;
                 return new SyntaxToken(SyntaxKind.CloseParenthesis, null, ")");
             case '!':
+                if (Lookahead == '=')
+                {
+                    _position += 2;
+                    return new SyntaxToken(SyntaxKind.BangEqualsToken, null, "!=");
+                }
                 _position++;
                 return new SyntaxToken(SyntaxKind.BangToken, null, "!");
             case '&':
@@ -103,6 +109,14 @@ public class Lexer
                 {
                     _position += 2;
                     return new SyntaxToken(SyntaxKind.PipePipeToken, null, "||");
+                }
+
+                goto default;
+            case '=':
+                if (Lookahead == '=')
+                {
+                    _position += 2;
+                    return new SyntaxToken(SyntaxKind.EqualsEqualsToken, null, "==");
                 }
 
                 goto default;

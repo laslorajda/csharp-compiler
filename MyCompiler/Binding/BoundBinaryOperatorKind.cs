@@ -8,4 +8,6 @@ internal enum BoundBinaryOperatorKind
     Division = 3,
     LogicalAnd,
     LogicalOr,
+    Equals,
+    NotEquals
 }

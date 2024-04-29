@@ -175,4 +175,21 @@ public class EvaluatorFixture
         result.GetType().Should().Be(typeof(bool));
         ((bool)result).Should().Be(false);
     }
+    
+    [Theory]
+    [InlineData("1 == 1", true)]
+    [InlineData("1 == 2",false)]
+    [InlineData("true == true", true)]
+    [InlineData("true == false", false)]
+    [InlineData("1 == 1 && 2 == 3", false)]
+    [InlineData("1 == 1 || 2 == 3", true)]
+    public void EqualsShouldReturnCorrectValue(string text, bool expected)
+    {
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.Should().Be(expected);
+    }
 }

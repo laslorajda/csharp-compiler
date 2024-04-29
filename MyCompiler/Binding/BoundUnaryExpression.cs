@@ -2,14 +2,14 @@
 
 internal sealed class BoundUnaryExpression : BoundExpression
 {
-    internal readonly BoundUnaryOperatorKind OperatorKind;
+    internal readonly BoundUnaryOperator? Operator;
     internal readonly BoundExpression Operand;
-    internal override Type Type => Operand.Type;
+    internal override Type? Type => Operator?.ResultType;
     internal override BoundNodeKind Kind => BoundNodeKind.UnaryExpression;
 
-    public BoundUnaryExpression(BoundUnaryOperatorKind operatorKind , BoundExpression operand)
+    public BoundUnaryExpression(BoundUnaryOperator? op , BoundExpression operand)
     {
-        OperatorKind = operatorKind;
+        Operator = op;
         Operand = operand;
     }
 }

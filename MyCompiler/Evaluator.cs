@@ -1,5 +1,4 @@
 using MyCompiler.Binding;
-using MyCompiler.Syntax;
 
 namespace MyCompiler;
 
@@ -28,12 +27,12 @@ internal class Evaluator
                 case BoundUnaryExpression u:
                 {
                     var operand = EvaluateExpression(u.Operand);
-                    return u.OperatorKind switch
+                    return u.Operator.Kind switch
                     {
                         BoundUnaryOperatorKind.Identity => operand,
                         BoundUnaryOperatorKind.Negation => -(int) operand,
                         BoundUnaryOperatorKind.LogicalNegation => !(bool) operand,
-                        _ => throw new Exception($"Unexpected unary operator {u.OperatorKind}")
+                        _ => throw new Exception($"Unexpected unary operator {u.Operator}")
                     };
                 }
                 case BoundBinaryExpression b:
@@ -41,7 +40,7 @@ internal class Evaluator
                     var left = EvaluateExpression(b.Left);
                     var right = EvaluateExpression(b.Right);
 
-                    return b.OperatorKind switch
+                    return b.Operator.Kind switch
                     {
                         BoundBinaryOperatorKind.Addition => (int) left + (int) right,
                         BoundBinaryOperatorKind.Subtraction => (int) left - (int) right,
@@ -49,7 +48,9 @@ internal class Evaluator
                         BoundBinaryOperatorKind.Division => (int) left / (int) right,
                         BoundBinaryOperatorKind.LogicalAnd => (bool) left && (bool) right,
                         BoundBinaryOperatorKind.LogicalOr => (bool) left || (bool) right,
-                        _ => throw new Exception($"Unexpected binary operator {b.OperatorKind}")
+                        BoundBinaryOperatorKind.Equals => Equals(left, right),
+                        BoundBinaryOperatorKind.NotEquals => !Equals(left, right),
+                        _ => throw new Exception($"Unexpected binary operator {b.Operator}")
                     };
                 }
             }

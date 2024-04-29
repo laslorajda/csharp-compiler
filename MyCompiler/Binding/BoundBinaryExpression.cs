@@ -2,15 +2,15 @@
 
 internal sealed class BoundBinaryExpression : BoundExpression
 {
-    internal readonly BoundBinaryOperatorKind OperatorKind;
+    internal readonly BoundBinaryOperator? Operator;
     internal readonly BoundExpression Left;
     internal readonly BoundExpression Right;
-    internal override Type Type => Left.Type;
+    internal override Type? Type => Operator?.ResultType;
     internal override BoundNodeKind Kind => BoundNodeKind.BinaryExpression;
 
-    internal BoundBinaryExpression(BoundExpression left, BoundBinaryOperatorKind operatorKind, BoundExpression right)
+    internal BoundBinaryExpression(BoundExpression left, BoundBinaryOperator? op, BoundExpression right)
     {
-        OperatorKind = operatorKind;
+        Operator = op;
         Left = left;
         Right = right;
     }
