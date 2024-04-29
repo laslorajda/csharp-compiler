@@ -44,6 +44,21 @@ public class Lexer
                 : new SyntaxToken(SyntaxKind.BadResultToken, null, text);
         }
 
+        if (char.IsLetter(Current))
+        {
+            var start = _position;
+
+            while (_position < _text.Length && char.IsLetter(Current))
+            {
+                _position++;
+            }
+            
+            var length = _position - start;
+            var text = _text.Substring(start, length);
+            var kind = SyntaxFacts.GetKeywordKind(text);
+            return new SyntaxToken(kind, null, text);
+        }
+
         switch (Current)
         {
             case '+':

@@ -16,4 +16,12 @@ internal static class SyntaxFacts
             SyntaxKind.PlusToken or SyntaxKind.MinusToken => 3,
             _ => 0
         };
+
+    public static SyntaxKind GetKeywordKind(string text) =>
+        text switch
+        {
+            "true" => SyntaxKind.TrueKeyword,
+            "false" => SyntaxKind.FalseKeyword,
+            _ => SyntaxKind.IdentifierToken
+        };
 }

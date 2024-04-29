@@ -16,8 +16,9 @@ public class EvaluatorFixture
         var binder = new Binder();
         var boundExpression = binder.BindExpression(syntaxTree.Root);
         var result = new Evaluator(boundExpression).Evaluate();
-        
-        result.Should().Be(123);
+
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(123);
     }
     
     [Fact]
@@ -30,7 +31,8 @@ public class EvaluatorFixture
         var boundExpression = binder.BindExpression(syntaxTree.Root);
         var result = new Evaluator(boundExpression).Evaluate();
         
-        result.Should().Be(3);
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(3);
     }
     
     [Fact]
@@ -43,7 +45,8 @@ public class EvaluatorFixture
         var boundExpression = binder.BindExpression(syntaxTree.Root);
         var result = new Evaluator(boundExpression).Evaluate();
         
-        result.Should().Be(7);
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(7);
     }
     
     [Fact]
@@ -56,7 +59,8 @@ public class EvaluatorFixture
         var boundExpression = binder.BindExpression(syntaxTree.Root);
         var result = new Evaluator(boundExpression).Evaluate();
         
-        result.Should().Be(1);
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(1);
     }
     
     [Fact]
@@ -68,7 +72,37 @@ public class EvaluatorFixture
         var binder = new Binder();
         var boundExpression = binder.BindExpression(syntaxTree.Root);
         var result = new Evaluator(boundExpression).Evaluate();
+
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(1);
+    }
+    
+    [Fact]
+    public void TrueShouldReturnTrue()
+    {
+        const string text = "true";
         
-        result.Should().Be(1);
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(true);
+    }
+    
+    [Fact]
+    public void FalseShouldReturnFalse()
+    {
+        const string text = "false";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(false);
     }
 }

@@ -12,22 +12,22 @@ internal class Evaluator
         _root = root;
     }
 
-    public int Evaluate()
+    public object Evaluate()
     {
         return EvaluateExpression(_root);
     }
 
-    private static int EvaluateExpression(BoundExpression node)
+    private static object EvaluateExpression(BoundExpression node)
     {
         while (true)
         {
             switch (node)
             {
                 case BoundLiteralExpression n:
-                    return (int)n.Value;
+                    return n.Value;
                 case BoundUnaryExpression u:
                 {
-                    var operand = EvaluateExpression(u.Operand);
+                    var operand = (int) EvaluateExpression(u.Operand);
                     return u.OperatorKind switch
                     {
                         BoundUnaryOperatorKind.Identity => operand,
@@ -37,8 +37,8 @@ internal class Evaluator
                 }
                 case BoundBinaryExpression b:
                 {
-                    var left = EvaluateExpression(b.Left);
-                    var right = EvaluateExpression(b.Right);
+                    var left = (int) EvaluateExpression(b.Left);
+                    var right = (int) EvaluateExpression(b.Right);
 
                     return b.OperatorKind switch
                     {

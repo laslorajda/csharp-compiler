@@ -32,11 +32,11 @@ public class LexerFixture
     }
 
     [Fact]
-    public void InvalidStringShouldReturnBadResultToken()
+    public void InvalidStringShouldReturnIdentifierToken()
     {
         var lexer = new Lexer("asd");
         var token = lexer.GetNextToken();
-        token.Kind.Should().Be(SyntaxKind.BadResultToken);
+        token.Kind.Should().Be(SyntaxKind.IdentifierToken);
     }
     
     [Theory]
@@ -57,5 +57,21 @@ public class LexerFixture
         
         token = lexer.GetNextToken();
         token.Kind.Should().Be(SyntaxKind.CloseParenthesis);
+    }
+    
+    [Fact]
+    public void TrueShouldReturnTrueKeyword()
+    {
+        var lexer = new Lexer("true");
+        var token = lexer.GetNextToken();
+        token.Kind.Should().Be(SyntaxKind.TrueKeyword);
+    }
+    
+    [Fact]
+    public void FalseShouldReturnFalseKeyword()
+    {
+        var lexer = new Lexer("false");
+        var token = lexer.GetNextToken();
+        token.Kind.Should().Be(SyntaxKind.FalseKeyword);
     }
 }
