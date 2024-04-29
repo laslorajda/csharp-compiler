@@ -105,4 +105,74 @@ public class EvaluatorFixture
         result.GetType().Should().Be(typeof(bool));
         ((bool)result).Should().Be(false);
     }
+    
+    [Fact]
+    public void NotTrueShouldReturnFalse()
+    {
+        const string text = "!true";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(false);
+    }
+    
+    [Fact]
+    public void TrueAndFalseShouldReturnFalse()
+    {
+        const string text = "true && false";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(false);
+    }
+    
+    [Fact]
+    public void TrueAndTrueShouldReturnTrue()
+    {
+        const string text = "true && true";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(true);
+    }
+    
+    [Fact]
+    public void TrueOrFalseShouldReturnTrue()
+    {
+        const string text = "true || false";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(true);
+    }
+    
+    [Fact]
+    public void FalseOrFalseShouldReturnFalse()
+    {
+        const string text = "false || false";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(false);
+    }
 }

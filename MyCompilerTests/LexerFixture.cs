@@ -74,4 +74,28 @@ public class LexerFixture
         var token = lexer.GetNextToken();
         token.Kind.Should().Be(SyntaxKind.FalseKeyword);
     }
+    
+    [Fact]
+    public void ExclamationMarkShouldReturnBangToken()
+    {
+        var lexer = new Lexer("!");
+        var token = lexer.GetNextToken();
+        token.Kind.Should().Be(SyntaxKind.BangToken);
+    }
+    
+    [Fact]
+    public void DoubleAmpersandShouldReturnAmpersandAmpersandToken()
+    {
+        var lexer = new Lexer("&&");
+        var token = lexer.GetNextToken();
+        token.Kind.Should().Be(SyntaxKind.AmpersandAmpersandToken);
+    }
+    
+    [Fact]
+    public void DoublePipeShouldReturnPipePipeToken()
+    {
+        var lexer = new Lexer("||");
+        var token = lexer.GetNextToken();
+        token.Kind.Should().Be(SyntaxKind.PipePipeToken);
+    }
 }

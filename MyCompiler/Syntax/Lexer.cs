@@ -10,8 +10,16 @@ public class Lexer
         _text = text;
     }
 
-    private char Current => _text[_position];
+    private char Current => Peek(0);
 
+    private char Lookahead => Peek(1);
+    
+    private char Peek(int offset)
+    {
+        var index = _position + offset;
+        return index >= _text.Length ? '\0' : _text[index];
+    }
+    
     public SyntaxToken GetNextToken()
     {
         if (_position >= _text.Length)
@@ -63,22 +71,41 @@ public class Lexer
         {
             case '+':
                 _position++;
-                return new SyntaxToken(SyntaxKind.PlusToken, null, string.Empty);
+                return new SyntaxToken(SyntaxKind.PlusToken, null, "+");
             case '-':
                 _position++;
-                return new SyntaxToken(SyntaxKind.MinusToken, null, string.Empty);
+                return new SyntaxToken(SyntaxKind.MinusToken, null, "-");
             case '*':
                 _position++;
-                return new SyntaxToken(SyntaxKind.StarToken, null, string.Empty);
+                return new SyntaxToken(SyntaxKind.StarToken, null, "*");
             case '/':
                 _position++;
-                return new SyntaxToken(SyntaxKind.SlashToken, null, string.Empty);
+                return new SyntaxToken(SyntaxKind.SlashToken, null, "/");
             case '(':
                 _position++;
-                return new SyntaxToken(SyntaxKind.OpenParenthesis, null, string.Empty);
+                return new SyntaxToken(SyntaxKind.OpenParenthesis, null, "(");
             case ')':
                 _position++;
-                return new SyntaxToken(SyntaxKind.CloseParenthesis, null, string.Empty);
+                return new SyntaxToken(SyntaxKind.CloseParenthesis, null, ")");
+            case '!':
+                _position++;
+                return new SyntaxToken(SyntaxKind.BangToken, null, "!");
+            case '&':
+                if (Lookahead == '&')
+                {
+                    _position += 2;
+                    return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, null, "&&");
+                }
+
+                goto default;
+            case '|':
+                if (Lookahead == '|')
+                {
+                    _position += 2;
+                    return new SyntaxToken(SyntaxKind.PipePipeToken, null, "||");
+                }
+
+                goto default;
             default:
                 _position++;
                 return new SyntaxToken(SyntaxKind.BadResultToken, null, string.Empty);
