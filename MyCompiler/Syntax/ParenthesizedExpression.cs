@@ -1,12 +1,12 @@
 namespace MyCompiler.Syntax;
 
-public class ParenthesizedExpressionSyntax : ExpressionSyntax
+public class ParenthesizedExpression : ExpressionSyntax
 {
     private readonly SyntaxToken _left;
     private readonly ExpressionSyntax _expression;
     private readonly SyntaxToken _right;
 
-    public ParenthesizedExpressionSyntax(SyntaxToken left, ExpressionSyntax expression, SyntaxToken right)
+    public ParenthesizedExpression(SyntaxToken left, ExpressionSyntax expression, SyntaxToken right)
     {
         _left = left;
         _expression = expression;

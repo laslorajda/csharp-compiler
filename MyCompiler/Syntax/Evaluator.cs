@@ -20,9 +20,9 @@ public class Evaluator
         {
             switch (node)
             {
-                case NumberExpressionSyntax n:
-                    return (int)n.NumberToken.Value!;
-                case BinaryExpressionSyntax b:
+                case LiteralExpression n:
+                    return (int)n.LiteralToken.Value!;
+                case BinaryExpression b:
                 {
                     var left = EvaluateExpression(b.Left);
                     var right = EvaluateExpression(b.Right);
@@ -36,7 +36,7 @@ public class Evaluator
                         _ => throw new Exception("Unexpected binary operator")
                     };
                 }
-                case ParenthesizedExpressionSyntax p:
+                case ParenthesizedExpression p:
                     node = p;
                     continue;
             }

@@ -58,7 +58,7 @@ public sealed class Parser
             
             var operatorToken = NextToken();
             var right = ParseExpression(precedence);
-            left = new BinaryExpressionSyntax(left, operatorToken, right);
+            left = new BinaryExpression(left, operatorToken, right);
         }
 
         return left;
@@ -76,7 +76,7 @@ public sealed class Parser
                 throw new Exception($"Expected ')' but got '{right.Value}'");
             }
 
-            return new ParenthesizedExpressionSyntax(left, expression, right);
+            return new ParenthesizedExpression(left, expression, right);
         }
         
         if (Current.Kind != SyntaxKind.NumberToken)
@@ -84,7 +84,7 @@ public sealed class Parser
             throw new Exception($"Unexpected token <{Current.Kind}>");
         }
 
-        return new NumberExpressionSyntax(NextToken());
+        return new LiteralExpression(NextToken());
     }
 
 }
