@@ -48,4 +48,15 @@ public class EvaluatorFixture
         
         result.Should().Be(1);
     }
+    
+    [Fact]
+    public void DoubleUnaryOperatorShouldReturnCorrectValue()
+    {
+        const string text = "--1";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var result = new Evaluator(syntaxTree.Root).Evaluate();
+        
+        result.Should().Be(1);
+    }
 }
