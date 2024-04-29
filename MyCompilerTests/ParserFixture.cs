@@ -20,7 +20,7 @@ public class ParserFixture
         
         var result = new Parser(text).Parse();
         
-        result.Root.Kind.Should().Be(SyntaxKind.NumberExpression);
+        result.Root.Kind.Should().Be(SyntaxKind.LiteralExpression);
         var children = result.Root.GetChildren().ToList();
         children.Should().HaveCount(1);
         children[0].Kind.Should().Be(SyntaxKind.NumberToken);
@@ -37,9 +37,9 @@ public class ParserFixture
         result.Root.Kind.Should().Be(SyntaxKind.BinaryExpression);
         var children = result.Root.GetChildren().ToList();
         children.Should().HaveCount(3);
-        children[0].Kind.Should().Be(SyntaxKind.NumberExpression);
+        children[0].Kind.Should().Be(SyntaxKind.LiteralExpression);
         children[1].Kind.Should().Be(SyntaxKind.PlusToken);
-        children[2].Kind.Should().Be(SyntaxKind.NumberExpression);
+        children[2].Kind.Should().Be(SyntaxKind.LiteralExpression);
     }
     
     [Fact]
@@ -52,9 +52,9 @@ public class ParserFixture
         result.Root.Kind.Should().Be(SyntaxKind.BinaryExpression);
         var children = result.Root.GetChildren().ToList();
         children.Should().HaveCount(3);
-        children[0].Kind.Should().Be(SyntaxKind.NumberExpression);
+        children[0].Kind.Should().Be(SyntaxKind.LiteralExpression);
         children[1].Kind.Should().Be(SyntaxKind.MinusToken);
-        children[2].Kind.Should().Be(SyntaxKind.NumberExpression);
+        children[2].Kind.Should().Be(SyntaxKind.LiteralExpression);
     }
     
     [Fact]
@@ -69,7 +69,7 @@ public class ParserFixture
         children.Should().HaveCount(3);
         children[0].Kind.Should().Be(SyntaxKind.BinaryExpression);
         children[1].Kind.Should().Be(SyntaxKind.PlusToken);
-        children[2].Kind.Should().Be(SyntaxKind.NumberExpression);
+        children[2].Kind.Should().Be(SyntaxKind.LiteralExpression);
     }
     
     [Fact]
@@ -82,7 +82,7 @@ public class ParserFixture
         result.Root.Kind.Should().Be(SyntaxKind.BinaryExpression);
         var children = result.Root.GetChildren().ToList();
         children.Should().HaveCount(3);
-        children[0].Kind.Should().Be(SyntaxKind.NumberExpression);
+        children[0].Kind.Should().Be(SyntaxKind.LiteralExpression);
         children[1].Kind.Should().Be(SyntaxKind.PlusToken);
         children[2].Kind.Should().Be(SyntaxKind.BinaryExpression);
     }
@@ -99,7 +99,7 @@ public class ParserFixture
         children.Should().HaveCount(3);
         children[0].Kind.Should().Be(SyntaxKind.ParenthesizedExpression);
         children[1].Kind.Should().Be(SyntaxKind.StarToken);
-        children[2].Kind.Should().Be(SyntaxKind.NumberExpression);
+        children[2].Kind.Should().Be(SyntaxKind.LiteralExpression);
     }
     
     [Fact]
@@ -114,6 +114,6 @@ public class ParserFixture
         children.Should().HaveCount(3);
         children[0].Kind.Should().Be(SyntaxKind.UnaryExpression);
         children[1].Kind.Should().Be(SyntaxKind.StarToken);
-        children[2].Kind.Should().Be(SyntaxKind.NumberExpression);
+        children[2].Kind.Should().Be(SyntaxKind.LiteralExpression);
     }
 }

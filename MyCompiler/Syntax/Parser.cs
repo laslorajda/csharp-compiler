@@ -78,19 +78,28 @@ public sealed class Parser
 
     private ExpressionSyntax ParsePrimary()
     {
-        if (Current.Kind == SyntaxKind.OpenParenthesis)
+        switch (Current.Kind)
         {
-            var left = NextToken();
-            var expression = ParseExpression();
-            var right = NextToken();
-            if (right.Kind != SyntaxKind.CloseParenthesis)
+            case SyntaxKind.OpenParenthesis:
             {
-                throw new Exception($"Expected ')' but got '{right.Value}'");
-            }
+                var left = NextToken();
+                var expression = ParseExpression();
+                var right = NextToken();
+                if (right.Kind != SyntaxKind.CloseParenthesis)
+                {
+                    throw new Exception($"Expected ')' but got '{right.Value}'");
+                }
 
-            return new ParenthesizedExpressionSyntax(left, expression, right);
+                return new ParenthesizedExpressionSyntax(left, expression, right);
+            }
+            case SyntaxKind.TrueKeyword or SyntaxKind.FalseKeyword:
+            {
+                var keyWordToken = NextToken();
+                var value = keyWordToken.Kind == SyntaxKind.TrueKeyword;
+                return new LiteralExpressionSyntax(keyWordToken, value);
+            }
         }
-        
+
         if (Current.Kind != SyntaxKind.NumberToken)
         {
             throw new Exception($"Unexpected token <{Current.Kind}>");

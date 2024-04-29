@@ -1,4 +1,6 @@
 ﻿using FluentAssertions;
+using MyCompiler;
+using MyCompiler.Binding;
 using MyCompiler.Syntax;
 
 namespace MyCompilerTests;
@@ -11,9 +13,12 @@ public class EvaluatorFixture
         const string text = "123";
         
         var syntaxTree = new Parser(text).Parse();
-        var result = new Evaluator(syntaxTree.Root).Evaluate();
-        
-        result.Should().Be(123);
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(123);
     }
     
     [Fact]
@@ -22,9 +27,12 @@ public class EvaluatorFixture
         const string text = "1 + 2";
         
         var syntaxTree = new Parser(text).Parse();
-        var result = new Evaluator(syntaxTree.Root).Evaluate();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
         
-        result.Should().Be(3);
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(3);
     }
     
     [Fact]
@@ -33,9 +41,12 @@ public class EvaluatorFixture
         const string text = "1 + 2 * 3";
         
         var syntaxTree = new Parser(text).Parse();
-        var result = new Evaluator(syntaxTree.Root).Evaluate();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
         
-        result.Should().Be(7);
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(7);
     }
     
     [Fact]
@@ -44,9 +55,12 @@ public class EvaluatorFixture
         const string text = "-1 + 2";
         
         var syntaxTree = new Parser(text).Parse();
-        var result = new Evaluator(syntaxTree.Root).Evaluate();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
         
-        result.Should().Be(1);
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(1);
     }
     
     [Fact]
@@ -55,8 +69,127 @@ public class EvaluatorFixture
         const string text = "--1";
         
         var syntaxTree = new Parser(text).Parse();
-        var result = new Evaluator(syntaxTree.Root).Evaluate();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(1);
+    }
+    
+    [Fact]
+    public void TrueShouldReturnTrue()
+    {
+        const string text = "true";
         
-        result.Should().Be(1);
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(true);
+    }
+    
+    [Fact]
+    public void FalseShouldReturnFalse()
+    {
+        const string text = "false";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(false);
+    }
+    
+    [Fact]
+    public void NotTrueShouldReturnFalse()
+    {
+        const string text = "!true";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(false);
+    }
+    
+    [Fact]
+    public void TrueAndFalseShouldReturnFalse()
+    {
+        const string text = "true && false";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(false);
+    }
+    
+    [Fact]
+    public void TrueAndTrueShouldReturnTrue()
+    {
+        const string text = "true && true";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(true);
+    }
+    
+    [Fact]
+    public void TrueOrFalseShouldReturnTrue()
+    {
+        const string text = "true || false";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(true);
+    }
+    
+    [Fact]
+    public void FalseOrFalseShouldReturnFalse()
+    {
+        const string text = "false || false";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(bool));
+        ((bool)result).Should().Be(false);
+    }
+    
+    [Theory]
+    [InlineData("1 == 1", true)]
+    [InlineData("1 == 2",false)]
+    [InlineData("true == true", true)]
+    [InlineData("true == false", false)]
+    [InlineData("1 == 1 && 2 == 3", false)]
+    [InlineData("1 == 1 || 2 == 3", true)]
+    public void EqualsShouldReturnCorrectValue(string text, bool expected)
+    {
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.Should().Be(expected);
     }
 }
