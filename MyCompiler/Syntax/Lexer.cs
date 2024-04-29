@@ -60,10 +60,10 @@ public class Lexer
                 return new SyntaxToken(SyntaxKind.SlashToken, null);
             case '(':
                 _position++;
-                return new SyntaxToken(SyntaxKind.OpenParenthesisToken, null);
+                return new SyntaxToken(SyntaxKind.OpenParenthesis, null);
             case ')':
                 _position++;
-                return new SyntaxToken(SyntaxKind.CloseParenthesisToken, null);
+                return new SyntaxToken(SyntaxKind.CloseParenthesis, null);
             default:
                 _position++;
                 return new SyntaxToken(SyntaxKind.BadResultToken, null);

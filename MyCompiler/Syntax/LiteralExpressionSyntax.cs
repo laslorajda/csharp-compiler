@@ -1,12 +1,12 @@
 namespace MyCompiler.Syntax;
 
-public class LiteralExpression : ExpressionSyntax
+public class LiteralExpressionSyntax : ExpressionSyntax
 {
-    public override SyntaxKind Kind => SyntaxKind.NumberExpressionToken;
+    public override SyntaxKind Kind => SyntaxKind.NumberExpression;
 
     public readonly SyntaxToken LiteralToken;
 
-    public LiteralExpression(SyntaxToken literalToken)
+    public LiteralExpressionSyntax(SyntaxToken literalToken)
     {
         LiteralToken = literalToken;
     }

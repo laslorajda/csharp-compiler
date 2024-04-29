@@ -1,12 +1,12 @@
 namespace MyCompiler.Syntax;
 
-public class BinaryExpression : ExpressionSyntax
+public class BinaryExpressionSyntax : ExpressionSyntax
 {
     public readonly ExpressionSyntax Left;
     public readonly SyntaxToken OperatorToken;
     public readonly ExpressionSyntax Right;
 
-    public BinaryExpression(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
+    public BinaryExpressionSyntax(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
     {
         Left = left;
         OperatorToken = operatorToken;

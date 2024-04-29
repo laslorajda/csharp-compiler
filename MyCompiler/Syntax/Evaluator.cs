@@ -14,15 +14,25 @@ public class Evaluator
         return EvaluateExpression(_root);
     }
 
-    private int EvaluateExpression(ExpressionSyntax node)
+    private static int EvaluateExpression(ExpressionSyntax node)
     {
         while (true)
         {
             switch (node)
             {
-                case LiteralExpression n:
+                case LiteralExpressionSyntax n:
                     return (int)n.LiteralToken.Value!;
-                case BinaryExpression b:
+                case UnaryExpressionSyntax u:
+                {
+                    var operand = EvaluateExpression(u.Operand);
+                    return u.OperatorToken.Kind switch
+                    {
+                        SyntaxKind.PlusToken => operand,
+                        SyntaxKind.MinusToken => -operand,
+                        _ => throw new Exception("Unexpected unary operator")
+                    };
+                }
+                case BinaryExpressionSyntax b:
                 {
                     var left = EvaluateExpression(b.Left);
                     var right = EvaluateExpression(b.Right);
@@ -36,7 +46,7 @@ public class Evaluator
                         _ => throw new Exception("Unexpected binary operator")
                     };
                 }
-                case ParenthesizedExpression p:
+                case ParenthesizedExpressionSyntax p:
                     node = p;
                     continue;
             }

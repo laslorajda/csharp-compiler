@@ -46,7 +46,19 @@ public sealed class Parser
 
     private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
     {
-        var left = ParsePrimary();
+        ExpressionSyntax left;
+        var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
+
+        if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence > parentPrecedence)
+        {
+            var operatorToken = NextToken();
+            var operand = ParseExpression(unaryOperatorPrecedence);
+            left = new UnaryExpressionSyntax(operatorToken, operand);
+        }
+        else
+        {
+            left = ParsePrimary();
+        }
 
         while (true)
         {
@@ -58,7 +70,7 @@ public sealed class Parser
             
             var operatorToken = NextToken();
             var right = ParseExpression(precedence);
-            left = new BinaryExpression(left, operatorToken, right);
+            left = new BinaryExpressionSyntax(left, operatorToken, right);
         }
 
         return left;
@@ -66,17 +78,17 @@ public sealed class Parser
 
     private ExpressionSyntax ParsePrimary()
     {
-        if (Current.Kind == SyntaxKind.OpenParenthesisToken)
+        if (Current.Kind == SyntaxKind.OpenParenthesis)
         {
             var left = NextToken();
             var expression = ParseExpression();
             var right = NextToken();
-            if (right.Kind != SyntaxKind.CloseParenthesisToken)
+            if (right.Kind != SyntaxKind.CloseParenthesis)
             {
                 throw new Exception($"Expected ')' but got '{right.Value}'");
             }
 
-            return new ParenthesizedExpression(left, expression, right);
+            return new ParenthesizedExpressionSyntax(left, expression, right);
         }
         
         if (Current.Kind != SyntaxKind.NumberToken)
@@ -84,7 +96,7 @@ public sealed class Parser
             throw new Exception($"Unexpected token <{Current.Kind}>");
         }
 
-        return new LiteralExpression(NextToken());
+        return new LiteralExpressionSyntax(NextToken());
     }
 
 }
