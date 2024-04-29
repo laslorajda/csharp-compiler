@@ -50,7 +50,7 @@ public sealed class Parser
 
         while (true)
         {
-            var precedence = GetBinaryOperatorPrecedence(Current.Kind);
+            var precedence = Current.Kind.GetBinaryOperatorPrecedence();
             if (precedence == 0 || precedence <= parentPrecedence)
             {
                 break;
@@ -87,11 +87,4 @@ public sealed class Parser
         return new NumberExpressionSyntax(NextToken());
     }
 
-    private static int GetBinaryOperatorPrecedence(SyntaxKind kind) =>
-        kind switch
-        {
-            SyntaxKind.StarToken or SyntaxKind.SlashToken => 2,
-            SyntaxKind.PlusToken or SyntaxKind.MinusToken  => 1,
-            _ => 0
-        };
 }
