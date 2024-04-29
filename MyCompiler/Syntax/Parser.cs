@@ -1,6 +1,6 @@
 namespace MyCompiler.Syntax;
 
-public class Parser
+public sealed class Parser
 {
     private readonly SyntaxToken[] _tokens;
     private int _position;
@@ -23,13 +23,13 @@ public class Parser
         _tokens = tokens.ToArray();
     }
 
+    private SyntaxToken Current => Peek(0);
+
     private SyntaxToken Peek(int offset)
     {
         var index = _position + offset;
         return index >= _tokens.Length ? _tokens.Last() : _tokens[index];
     }
-
-    private SyntaxToken Current => Peek(0);
     
     private SyntaxToken NextToken()
     {
@@ -40,30 +40,24 @@ public class Parser
     
     public SyntaxTree Parse()
     {
-        var expression = ParseAdditionOrSubtraction();
+        var expression = ParseExpression();
         return new SyntaxTree(expression);
     }
 
-    private ExpressionSyntax ParseAdditionOrSubtraction()
-    {
-        var left = ParseMultiplicationOrDivision();
-        while (Current.Type is TokenType.PlusToken or TokenType.MinusToken)
-        {
-            var operatorToken = NextToken();
-            var right = ParseMultiplicationOrDivision();
-            left = new BinaryExpressionSyntax(left, operatorToken, right);
-        }
-
-        return left;
-    }
-
-    private ExpressionSyntax ParseMultiplicationOrDivision()
+    private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
     {
         var left = ParsePrimary();
-        while (Current.Type is TokenType.StarToken or TokenType.SlashToken)
+
+        while (true)
         {
+            var precedence = GetBinaryOperatorPrecedence(Current.Type);
+            if (precedence == 0 || precedence <= parentPrecedence)
+            {
+                break;
+            }
+            
             var operatorToken = NextToken();
-            var right = ParsePrimary();
+            var right = ParseExpression(precedence);
             left = new BinaryExpressionSyntax(left, operatorToken, right);
         }
 
@@ -75,7 +69,7 @@ public class Parser
         if (Current.Type == TokenType.OpenParenthesisToken)
         {
             var left = NextToken();
-            var expression = ParseAdditionOrSubtraction();
+            var expression = ParseExpression();
             var right = NextToken();
             if (right.Type != TokenType.CloseParenthesisToken)
             {
@@ -92,4 +86,12 @@ public class Parser
 
         return new NumberExpressionSyntax(NextToken());
     }
+
+    private static int GetBinaryOperatorPrecedence(TokenType type) =>
+        type switch
+        {
+            TokenType.StarToken or TokenType.SlashToken => 2,
+            TokenType.PlusToken or TokenType.MinusToken  => 1,
+            _ => 0
+        };
 }
