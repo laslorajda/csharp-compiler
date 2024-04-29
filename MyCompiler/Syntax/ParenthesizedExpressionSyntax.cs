@@ -13,7 +13,7 @@ public class ParenthesizedExpressionSyntax : ExpressionSyntax
         _right = right;
     }
 
-    public override TokenType Type => TokenType.ParenthesizedExpressionToken;
+    public override SyntaxKind Kind => SyntaxKind.ParenthesizedExpressionToken;
 
     public override IEnumerable<SyntaxNode> GetChildren()
     {

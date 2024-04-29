@@ -2,7 +2,7 @@ namespace MyCompiler.Syntax;
 
 public class NumberExpressionSyntax : ExpressionSyntax
 {
-    public override TokenType Type => TokenType.NumberExpressionToken;
+    public override SyntaxKind Kind => SyntaxKind.NumberExpressionToken;
 
     public readonly SyntaxToken NumberToken;
 

@@ -2,11 +2,11 @@
 
 public class SyntaxToken : SyntaxNode
 {
-    public override TokenType Type { get; }
+    public override SyntaxKind Kind { get; }
 
-    public SyntaxToken(TokenType type, object? value)
+    public SyntaxToken(SyntaxKind kind, object? value)
     {
-        Type = type;
+        Kind = kind;
         Value = value;
     }
     

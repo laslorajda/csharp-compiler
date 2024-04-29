@@ -14,11 +14,11 @@ public sealed class Parser
         do
         {
             token = lexer.GetNextToken();
-            if (token.Type is not TokenType.WhitespaceToken and not TokenType.BadResultToken)
+            if (token.Kind is not SyntaxKind.WhitespaceToken and not SyntaxKind.BadResultToken)
             {
                 tokens.Add(token);
             }
-        } while (token.Type != TokenType.EndOfFileToken);
+        } while (token.Kind != SyntaxKind.EndOfFileToken);
 
         _tokens = tokens.ToArray();
     }
@@ -50,7 +50,7 @@ public sealed class Parser
 
         while (true)
         {
-            var precedence = GetBinaryOperatorPrecedence(Current.Type);
+            var precedence = GetBinaryOperatorPrecedence(Current.Kind);
             if (precedence == 0 || precedence <= parentPrecedence)
             {
                 break;
@@ -66,12 +66,12 @@ public sealed class Parser
 
     private ExpressionSyntax ParsePrimary()
     {
-        if (Current.Type == TokenType.OpenParenthesisToken)
+        if (Current.Kind == SyntaxKind.OpenParenthesisToken)
         {
             var left = NextToken();
             var expression = ParseExpression();
             var right = NextToken();
-            if (right.Type != TokenType.CloseParenthesisToken)
+            if (right.Kind != SyntaxKind.CloseParenthesisToken)
             {
                 throw new Exception($"Expected ')' but got '{right.Value}'");
             }
@@ -79,19 +79,19 @@ public sealed class Parser
             return new ParenthesizedExpressionSyntax(left, expression, right);
         }
         
-        if (Current.Type != TokenType.NumberToken)
+        if (Current.Kind != SyntaxKind.NumberToken)
         {
-            throw new Exception($"Unexpected token <{Current.Type}>");
+            throw new Exception($"Unexpected token <{Current.Kind}>");
         }
 
         return new NumberExpressionSyntax(NextToken());
     }
 
-    private static int GetBinaryOperatorPrecedence(TokenType type) =>
-        type switch
+    private static int GetBinaryOperatorPrecedence(SyntaxKind kind) =>
+        kind switch
         {
-            TokenType.StarToken or TokenType.SlashToken => 2,
-            TokenType.PlusToken or TokenType.MinusToken  => 1,
+            SyntaxKind.StarToken or SyntaxKind.SlashToken => 2,
+            SyntaxKind.PlusToken or SyntaxKind.MinusToken  => 1,
             _ => 0
         };
 }

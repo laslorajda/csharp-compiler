@@ -11,7 +11,7 @@ public class LexerFixture
     {
         var lexer = new Lexer(string.Empty);
         var token = lexer.GetNextToken();
-        token.Type.Should().Be(TokenType.EndOfFileToken);
+        token.Kind.Should().Be(SyntaxKind.EndOfFileToken);
     }
     
     [Fact]
@@ -19,7 +19,7 @@ public class LexerFixture
     {
         var lexer = new Lexer("   ");
         var token = lexer.GetNextToken();
-        token.Type.Should().Be(TokenType.WhitespaceToken);
+        token.Kind.Should().Be(SyntaxKind.WhitespaceToken);
     }
     
     [Fact]
@@ -27,7 +27,7 @@ public class LexerFixture
     {
         var lexer = new Lexer("123");
         var token = lexer.GetNextToken();
-        token.Type.Should().Be(TokenType.NumberToken);
+        token.Kind.Should().Be(SyntaxKind.NumberToken);
         token.Value.Should().Be(123);
     }
 
@@ -36,16 +36,16 @@ public class LexerFixture
     {
         var lexer = new Lexer("asd");
         var token = lexer.GetNextToken();
-        token.Type.Should().Be(TokenType.BadResultToken);
+        token.Kind.Should().Be(SyntaxKind.BadResultToken);
     }
     
     [Theory]
     [ClassData(typeof(MathematicalOperatorsData))]
-    public void StringContainingMathematicalOperatorsShouldReturnCorrectTokens(string text, TokenType expectedType)
+    public void StringContainingMathematicalOperatorsShouldReturnCorrectTokens(string text, SyntaxKind expectedKind)
     {
         var lexer = new Lexer(text);
         var token = lexer.GetNextToken();
-        token.Type.Should().Be(expectedType);
+        token.Kind.Should().Be(expectedKind);
     }
     
     [Fact]
@@ -53,9 +53,9 @@ public class LexerFixture
     {
         var lexer = new Lexer("()");
         var token = lexer.GetNextToken();
-        token.Type.Should().Be(TokenType.OpenParenthesisToken);
+        token.Kind.Should().Be(SyntaxKind.OpenParenthesisToken);
         
         token = lexer.GetNextToken();
-        token.Type.Should().Be(TokenType.CloseParenthesisToken);
+        token.Kind.Should().Be(SyntaxKind.CloseParenthesisToken);
     }
 }

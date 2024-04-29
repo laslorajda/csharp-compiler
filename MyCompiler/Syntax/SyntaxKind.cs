@@ -1,6 +1,6 @@
 ﻿namespace MyCompiler.Syntax;
 
-public enum TokenType
+public enum SyntaxKind
 {
     BadResultToken = 0,
     EndOfFileToken = 1,

@@ -16,7 +16,7 @@ public class Lexer
     {
         if (_position >= _text.Length)
         {
-            return new SyntaxToken(TokenType.EndOfFileToken, null);
+            return new SyntaxToken(SyntaxKind.EndOfFileToken, null);
         }
 
         if (char.IsWhiteSpace(Current))
@@ -26,7 +26,7 @@ public class Lexer
                 _position++;
             }
             
-            return new SyntaxToken(TokenType.WhitespaceToken, null);
+            return new SyntaxToken(SyntaxKind.WhitespaceToken, null);
         }
         
         if(char.IsDigit(Current))
@@ -40,33 +40,33 @@ public class Lexer
             var text = _text.Substring(start, length);
 
             return int.TryParse(text, out var result)
-                ? new SyntaxToken(TokenType.NumberToken, result)
-                : new SyntaxToken(TokenType.BadResultToken, null);
+                ? new SyntaxToken(SyntaxKind.NumberToken, result)
+                : new SyntaxToken(SyntaxKind.BadResultToken, null);
         }
 
         switch (Current)
         {
             case '+':
                 _position++;
-                return new SyntaxToken(TokenType.PlusToken, null);
+                return new SyntaxToken(SyntaxKind.PlusToken, null);
             case '-':
                 _position++;
-                return new SyntaxToken(TokenType.MinusToken, null);
+                return new SyntaxToken(SyntaxKind.MinusToken, null);
             case '*':
                 _position++;
-                return new SyntaxToken(TokenType.StarToken, null);
+                return new SyntaxToken(SyntaxKind.StarToken, null);
             case '/':
                 _position++;
-                return new SyntaxToken(TokenType.SlashToken, null);
+                return new SyntaxToken(SyntaxKind.SlashToken, null);
             case '(':
                 _position++;
-                return new SyntaxToken(TokenType.OpenParenthesisToken, null);
+                return new SyntaxToken(SyntaxKind.OpenParenthesisToken, null);
             case ')':
                 _position++;
-                return new SyntaxToken(TokenType.CloseParenthesisToken, null);
+                return new SyntaxToken(SyntaxKind.CloseParenthesisToken, null);
             default:
                 _position++;
-                return new SyntaxToken(TokenType.BadResultToken, null);
+                return new SyntaxToken(SyntaxKind.BadResultToken, null);
         }
     }
 }

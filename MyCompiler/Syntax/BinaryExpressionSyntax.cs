@@ -13,7 +13,7 @@ public class BinaryExpressionSyntax : ExpressionSyntax
         Right = right;
     }
 
-    public override TokenType Type => TokenType.BinaryExpression;
+    public override SyntaxKind Kind => SyntaxKind.BinaryExpression;
 
     public override IEnumerable<SyntaxNode> GetChildren()
     {

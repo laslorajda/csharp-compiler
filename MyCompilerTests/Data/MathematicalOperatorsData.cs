@@ -7,10 +7,10 @@ public class MathematicalOperatorsData : IEnumerable<object[]>
 {
     public IEnumerator<object[]> GetEnumerator()
     {
-        yield return ["+", TokenType.PlusToken];
-        yield return ["-", TokenType.MinusToken];
-        yield return ["*", TokenType.StarToken];
-        yield return ["/", TokenType.SlashToken];
+        yield return ["+", SyntaxKind.PlusToken];
+        yield return ["-", SyntaxKind.MinusToken];
+        yield return ["*", SyntaxKind.StarToken];
+        yield return ["/", SyntaxKind.SlashToken];
     }
 
     IEnumerator IEnumerable.GetEnumerator()
