@@ -50,6 +50,20 @@ public class EvaluatorFixture
     }
     
     [Fact]
+    public void ParentesisShouldReturnCorrectValue()
+    {
+        const string text = "(1 + 2) * 3";
+        
+        var syntaxTree = new Parser(text).Parse();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
+        
+        result.GetType().Should().Be(typeof(int));
+        ((int)result).Should().Be(9);
+    }
+    
+    [Fact]
     public void UnaryExpressionShouldReturnCorrectValue()
     {
         const string text = "-1 + 2";
