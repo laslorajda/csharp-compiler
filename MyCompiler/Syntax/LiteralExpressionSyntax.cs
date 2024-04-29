@@ -13,7 +13,7 @@ public class LiteralExpressionSyntax : ExpressionSyntax
         _literalToken = literalToken;
     }
 
-    public LiteralExpressionSyntax(SyntaxToken literalToken) : this(literalToken, literalToken.Value ?? 0)
+    public LiteralExpressionSyntax(SyntaxToken literalToken) : this(literalToken, literalToken.Value)
     {
     }
 
