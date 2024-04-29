@@ -11,7 +11,7 @@ public enum SyntaxKind
     StarToken = 6,
     SlashToken = 7,
     BinaryExpression = 8,
-    NumberExpression = 9,
+    LiteralExpression = 9,
     OpenParenthesis = 10,
     CloseParenthesis = 11,
     ParenthesizedExpression = 12,

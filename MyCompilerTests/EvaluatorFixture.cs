@@ -1,4 +1,6 @@
 ﻿using FluentAssertions;
+using MyCompiler;
+using MyCompiler.Binding;
 using MyCompiler.Syntax;
 
 namespace MyCompilerTests;
@@ -11,7 +13,9 @@ public class EvaluatorFixture
         const string text = "123";
         
         var syntaxTree = new Parser(text).Parse();
-        var result = new Evaluator(syntaxTree.Root).Evaluate();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
         
         result.Should().Be(123);
     }
@@ -22,7 +26,9 @@ public class EvaluatorFixture
         const string text = "1 + 2";
         
         var syntaxTree = new Parser(text).Parse();
-        var result = new Evaluator(syntaxTree.Root).Evaluate();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
         
         result.Should().Be(3);
     }
@@ -33,7 +39,9 @@ public class EvaluatorFixture
         const string text = "1 + 2 * 3";
         
         var syntaxTree = new Parser(text).Parse();
-        var result = new Evaluator(syntaxTree.Root).Evaluate();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
         
         result.Should().Be(7);
     }
@@ -44,7 +52,9 @@ public class EvaluatorFixture
         const string text = "-1 + 2";
         
         var syntaxTree = new Parser(text).Parse();
-        var result = new Evaluator(syntaxTree.Root).Evaluate();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
         
         result.Should().Be(1);
     }
@@ -55,7 +65,9 @@ public class EvaluatorFixture
         const string text = "--1";
         
         var syntaxTree = new Parser(text).Parse();
-        var result = new Evaluator(syntaxTree.Root).Evaluate();
+        var binder = new Binder();
+        var boundExpression = binder.BindExpression(syntaxTree.Root);
+        var result = new Evaluator(boundExpression).Evaluate();
         
         result.Should().Be(1);
     }
