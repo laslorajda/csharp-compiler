@@ -117,8 +117,7 @@ public class Lexer
                     _position += 2;
                     return new SyntaxToken(SyntaxKind.EqualsEqualsToken, null, "==", start);
                 }
-
-                goto default;
+                return new SyntaxToken(SyntaxKind.EqualsToken, null, "=", _position++);
             default:
                 Diagnostics.ReportBadCharacter(_position, Current);
                 return new SyntaxToken(SyntaxKind.BadResultToken, null, string.Empty, _position++);

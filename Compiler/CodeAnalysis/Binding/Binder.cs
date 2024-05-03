@@ -4,8 +4,14 @@ namespace Compiler.CodeAnalysis.Binding;
 
 internal sealed class Binder
 {
-    public DiagnosticBag Diagnostics = new();
-    
+    private readonly Dictionary<string, object> _variables;
+    public readonly DiagnosticBag Diagnostics = new();
+
+    public Binder(Dictionary<string, object> variables)
+    {
+        _variables = variables;
+    }
+
     internal BoundExpression BindExpression(ExpressionSyntax syntax)
     {
         return syntax.Kind switch
@@ -14,10 +20,11 @@ internal sealed class Binder
             SyntaxKind.UnaryExpression => BindUnaryExpression((UnaryExpressionSyntax) syntax),
             SyntaxKind.BinaryExpression => BindBinaryExpression((BinaryExpressionSyntax) syntax),
             SyntaxKind.ParenthesizedExpression => BindExpression(((ParenthesizedExpressionSyntax)syntax).Expression),
+            SyntaxKind.NameExpression => BindNameExpression((NameExpressionSyntax) syntax),
+            SyntaxKind.AssignmentExpression => BindAssignmentExpression((AssignmentExpressionSyntax) syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}")
         };
     }
-
 
     private static BoundLiteralExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
     {
@@ -52,5 +59,25 @@ internal sealed class Binder
         }
 
         return new BoundBinaryExpression(boundLeft, boundOperatorKind, boundRight);
+    }
+
+    private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
+    {
+        var name = syntax.IdentifierToken.Text;
+        if (!_variables.TryGetValue(name, out var value))
+        {
+            Diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+            return new BoundLiteralExpression(0);
+        }
+
+        var type = value?.GetType() ?? typeof(object);
+        return new BoundVariableExpression(name, type);
+    }
+
+    private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
+    {
+        var name = syntax.IdentifierToken.Text;
+        var boundExpression = BindExpression(syntax.Expression);
+        return new BoundAssignmentExpression(name, boundExpression);
     }
 }
