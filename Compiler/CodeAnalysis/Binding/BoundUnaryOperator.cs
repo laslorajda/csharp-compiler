@@ -1,6 +1,6 @@
-﻿using MyCompiler.Syntax;
+﻿using Compiler.CodeAnalysis.Syntax;
 
-namespace MyCompiler.Binding;
+namespace Compiler.CodeAnalysis.Binding;
 
 internal sealed class BoundUnaryOperator
 {

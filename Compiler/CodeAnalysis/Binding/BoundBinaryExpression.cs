@@ -1,4 +1,4 @@
-﻿namespace MyCompiler.Binding;
+﻿namespace Compiler.CodeAnalysis.Binding;
 
 internal sealed class BoundBinaryExpression : BoundExpression
 {

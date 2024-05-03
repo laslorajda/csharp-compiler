@@ -1,6 +1,6 @@
-using MyCompiler.Binding;
+using Compiler.CodeAnalysis.Binding;
 
-namespace MyCompiler;
+namespace Compiler.CodeAnalysis;
 
 internal class Evaluator
 {
@@ -40,7 +40,7 @@ internal class Evaluator
                     var left = EvaluateExpression(b.Left);
                     var right = EvaluateExpression(b.Right);
 
-                    return b.Operator.Kind switch
+                    return b.Operator?.Kind switch
                     {
                         BoundBinaryOperatorKind.Addition => (int) left + (int) right,
                         BoundBinaryOperatorKind.Subtraction => (int) left - (int) right,

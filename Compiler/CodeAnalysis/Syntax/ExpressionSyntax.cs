@@ -1,3 +1,3 @@
-namespace MyCompiler.Syntax;
+namespace Compiler.CodeAnalysis.Syntax;
 
 public abstract class ExpressionSyntax : SyntaxNode;

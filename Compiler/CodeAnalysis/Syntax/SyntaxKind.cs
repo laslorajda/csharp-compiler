@@ -1,4 +1,4 @@
-﻿namespace MyCompiler.Syntax;
+﻿namespace Compiler.CodeAnalysis.Syntax;
 
 public enum SyntaxKind
 {

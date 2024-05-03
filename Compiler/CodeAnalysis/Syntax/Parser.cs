@@ -1,9 +1,12 @@
-namespace MyCompiler.Syntax;
+namespace Compiler.CodeAnalysis.Syntax;
 
 public sealed class Parser
 {
     private readonly SyntaxToken[] _tokens;
     private int _position;
+    private readonly List<string> _diagnostics = [];
+    
+    public IEnumerable<string> Diagnostic => _diagnostics;
     
     public Parser(string text)
     {
@@ -21,6 +24,7 @@ public sealed class Parser
         } while (token.Kind != SyntaxKind.EndOfFileToken);
 
         _tokens = tokens.ToArray();
+        _diagnostics.AddRange(lexer.Diagnostic);
     }
 
     private SyntaxToken Current => Peek(0);
@@ -41,7 +45,7 @@ public sealed class Parser
     public SyntaxTree Parse()
     {
         var expression = ParseExpression();
-        return new SyntaxTree(expression);
+        return new SyntaxTree(expression, _diagnostics);
     }
 
     private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
@@ -87,7 +91,7 @@ public sealed class Parser
                 var right = NextToken();
                 if (right.Kind != SyntaxKind.CloseParenthesis)
                 {
-                    throw new Exception($"Expected ')' but got '{right.Value}'");
+                    _diagnostics.Add($"ERROR: Expected ')' but got '{right.Value}'");
                 }
 
                 return new ParenthesizedExpressionSyntax(left, expression, right);
@@ -102,7 +106,7 @@ public sealed class Parser
 
         if (Current.Kind != SyntaxKind.NumberToken)
         {
-            throw new Exception($"Unexpected token <{Current.Kind}>");
+            _diagnostics.Add($"ERROR: Unexpected token <{Current.Kind}>, expected <NumberToken>");
         }
 
         return new LiteralExpressionSyntax(NextToken());

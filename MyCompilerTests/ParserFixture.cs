@@ -1,5 +1,5 @@
-﻿using FluentAssertions;
-using MyCompiler.Syntax;
+﻿using Compiler.CodeAnalysis.Syntax;
+using FluentAssertions;
 
 namespace MyCompilerTests;
 

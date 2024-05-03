@@ -1,11 +1,11 @@
-﻿using MyCompiler.Syntax;
+﻿using Compiler.CodeAnalysis.Syntax;
 
-namespace MyCompiler.Binding;
+namespace Compiler.CodeAnalysis.Binding;
 
 internal sealed class Binder
 {
     private readonly List<string> _diagnostics = [];
-    internal IEnumerable<string> Diagnostic => _diagnostics;
+    internal IEnumerable<string> Diagnostics => _diagnostics;
     
     internal BoundExpression BindExpression(ExpressionSyntax syntax)
     {

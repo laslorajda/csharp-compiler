@@ -1,4 +1,4 @@
-﻿namespace MyCompiler.Syntax;
+﻿namespace Compiler.CodeAnalysis.Syntax;
 
 internal static class SyntaxFacts
 {

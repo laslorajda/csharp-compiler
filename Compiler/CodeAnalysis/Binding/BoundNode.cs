@@ -1,4 +1,4 @@
-﻿namespace MyCompiler.Binding;
+﻿namespace Compiler.CodeAnalysis.Binding;
 
 internal abstract class BoundNode
 {

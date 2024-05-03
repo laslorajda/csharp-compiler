@@ -4,6 +4,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCompiler", "MyCompiler\My
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MyCompilerTests", "MyCompilerTests\MyCompilerTests.csproj", "{B4EBF8C0-3045-40A3-97EA-7193E9242287}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Compiler", "Compiler\Compiler.csproj", "{B6415604-EA0A-4067-9739-F8D077921EA5}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{B4EBF8C0-3045-40A3-97EA-7193E9242287}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B4EBF8C0-3045-40A3-97EA-7193E9242287}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B4EBF8C0-3045-40A3-97EA-7193E9242287}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6415604-EA0A-4067-9739-F8D077921EA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6415604-EA0A-4067-9739-F8D077921EA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6415604-EA0A-4067-9739-F8D077921EA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6415604-EA0A-4067-9739-F8D077921EA5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

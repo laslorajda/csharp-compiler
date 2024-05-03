@@ -24,6 +24,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\Compiler\Compiler.csproj" />
       <ProjectReference Include="..\MyCompiler\MyCompiler.csproj" />
     </ItemGroup>
 

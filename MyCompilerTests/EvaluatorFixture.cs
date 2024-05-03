@@ -1,7 +1,7 @@
-﻿using FluentAssertions;
-using MyCompiler;
-using MyCompiler.Binding;
-using MyCompiler.Syntax;
+﻿using Compiler.CodeAnalysis;
+using Compiler.CodeAnalysis.Binding;
+using Compiler.CodeAnalysis.Syntax;
+using FluentAssertions;
 
 namespace MyCompilerTests;
 

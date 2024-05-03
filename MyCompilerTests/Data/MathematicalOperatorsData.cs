@@ -1,5 +1,5 @@
+using Compiler.CodeAnalysis.Syntax;
 using System.Collections;
-using MyCompiler.Syntax;
 
 namespace MyCompilerTests.Data;
 

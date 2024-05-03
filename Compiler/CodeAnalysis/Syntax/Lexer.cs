@@ -1,14 +1,17 @@
-﻿namespace MyCompiler.Syntax;
+﻿namespace Compiler.CodeAnalysis.Syntax;
 
 public class Lexer
 {
     private readonly string _text;
     private int _position;
+    private readonly List<string> _diagnostics = [];
 
     public Lexer(string text)
     {
         _text = text;
     }
+
+    public IEnumerable<string> Diagnostic => _diagnostics;
 
     private char Current => Peek(0);
 
@@ -48,9 +51,13 @@ public class Lexer
             var length = _position - start;
             var text = _text.Substring(start, length);
 
-            return int.TryParse(text, out var result)
-                ? new SyntaxToken(SyntaxKind.NumberToken, result, text)
-                : new SyntaxToken(SyntaxKind.BadResultToken, null, text);
+            if (!int.TryParse(text, out var result))
+            {
+                return new SyntaxToken(SyntaxKind.BadResultToken, null, text);
+            }
+
+            _diagnostics.Add($"The number {text} isn't valid Int32");
+            return new SyntaxToken(SyntaxKind.NumberToken, result, text);
         }
 
         if (char.IsLetter(Current))
@@ -122,6 +129,7 @@ public class Lexer
                 goto default;
             default:
                 _position++;
+                _diagnostics.Add($"ERROR: bad character input: '{Current}'");
                 return new SyntaxToken(SyntaxKind.BadResultToken, null, string.Empty);
         }
     }
