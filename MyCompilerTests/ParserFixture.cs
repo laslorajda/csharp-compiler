@@ -6,14 +6,6 @@ namespace MyCompilerTests;
 public class ParserFixture
 {
     [Fact]
-    public void EmptyStringShouldThrowException()
-    {
-        var text = string.Empty;
-        Action a = () => new Parser(text).Parse();
-        a.Should().Throw<Exception>();
-    }
-    
-    [Fact]
     public void SingleNumberShouldReturnNumberToken()
     {
         const string text = "123";

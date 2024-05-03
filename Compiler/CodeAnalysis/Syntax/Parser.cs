@@ -4,10 +4,9 @@ public sealed class Parser
 {
     private readonly SyntaxToken[] _tokens;
     private int _position;
-    private readonly List<string> _diagnostics = [];
-    
-    public IEnumerable<string> Diagnostic => _diagnostics;
-    
+
+    public DiagnosticBag Diagnostics { get; } = new();
+
     public Parser(string text)
     {
         var lexer = new Lexer(text);
@@ -24,7 +23,7 @@ public sealed class Parser
         } while (token.Kind != SyntaxKind.EndOfFileToken);
 
         _tokens = tokens.ToArray();
-        _diagnostics.AddRange(lexer.Diagnostic);
+        Diagnostics.AddRange(lexer.Diagnostics);
     }
 
     private SyntaxToken Current => Peek(0);
@@ -45,7 +44,7 @@ public sealed class Parser
     public SyntaxTree Parse()
     {
         var expression = ParseExpression();
-        return new SyntaxTree(expression, _diagnostics);
+        return new SyntaxTree(expression, Diagnostics);
     }
 
     private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
@@ -91,7 +90,7 @@ public sealed class Parser
                 var right = NextToken();
                 if (right.Kind != SyntaxKind.CloseParenthesis)
                 {
-                    _diagnostics.Add($"ERROR: Expected ')' but got '{right.Value}'");
+                    Diagnostics.ReportUnexpectedToken(Current.Span, right.Kind, SyntaxKind.CloseParenthesis);
                 }
 
                 return new ParenthesizedExpressionSyntax(left, expression, right);
@@ -106,7 +105,7 @@ public sealed class Parser
 
         if (Current.Kind != SyntaxKind.NumberToken)
         {
-            _diagnostics.Add($"ERROR: Unexpected token <{Current.Kind}>, expected <NumberToken>");
+            Diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, SyntaxKind.NumberToken);
         }
 
         return new LiteralExpressionSyntax(NextToken());

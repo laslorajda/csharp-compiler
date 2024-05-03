@@ -2,7 +2,7 @@ namespace Compiler.CodeAnalysis.Syntax;
 
 public class SyntaxTree
 {
-    public SyntaxTree(ExpressionSyntax root, List<string> diagnostics)
+    public SyntaxTree(ExpressionSyntax root, DiagnosticBag diagnostics)
     {
         Root = root;
         Diagnostics = diagnostics;
@@ -10,5 +10,6 @@ public class SyntaxTree
 
     public ExpressionSyntax Root { get; }
 
-    public IReadOnlyList<string> Diagnostics { get; }
+    //TODO write tests for this
+    public DiagnosticBag Diagnostics { get; }
 }

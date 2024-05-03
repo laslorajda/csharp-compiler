@@ -4,14 +4,13 @@ public class Lexer
 {
     private readonly string _text;
     private int _position;
-    private readonly List<string> _diagnostics = [];
 
     public Lexer(string text)
     {
         _text = text;
     }
 
-    public IEnumerable<string> Diagnostic => _diagnostics;
+    public DiagnosticBag Diagnostics { get; } = new();
 
     private char Current => Peek(0);
 
@@ -27,9 +26,11 @@ public class Lexer
     {
         if (_position >= _text.Length)
         {
-            return new SyntaxToken(SyntaxKind.EndOfFileToken, null, string.Empty);
+            return new SyntaxToken(SyntaxKind.EndOfFileToken, null, string.Empty, _position);
         }
 
+        var start = _position;
+        
         if (char.IsWhiteSpace(Current))
         {
             while (_position < _text.Length && char.IsWhiteSpace(Current))
@@ -37,12 +38,11 @@ public class Lexer
                 _position++;
             }
 
-            return new SyntaxToken(SyntaxKind.WhitespaceToken, null, string.Empty);
+            return new SyntaxToken(SyntaxKind.WhitespaceToken, null, string.Empty, start);
         }
 
         if (char.IsDigit(Current))
         {
-            var start = _position;
             while (_position < _text.Length && char.IsDigit(Current))
             {
                 _position++;
@@ -53,16 +53,15 @@ public class Lexer
 
             if (!int.TryParse(text, out var result))
             {
-                return new SyntaxToken(SyntaxKind.BadResultToken, null, text);
+                return new SyntaxToken(SyntaxKind.BadResultToken, null, text, start);
             }
 
-            _diagnostics.Add($"The number {text} isn't valid Int32");
-            return new SyntaxToken(SyntaxKind.NumberToken, result, text);
+            Diagnostics.ReportInvalidNumber(new TextSpan(start, length), text, typeof(int));
+            return new SyntaxToken(SyntaxKind.NumberToken, result, text, start);
         }
 
         if (char.IsLetter(Current))
         {
-            var start = _position;
 
             while (_position < _text.Length && char.IsLetter(Current))
             {
@@ -72,42 +71,35 @@ public class Lexer
             var length = _position - start;
             var text = _text.Substring(start, length);
             var kind = SyntaxFacts.GetKeywordKind(text);
-            return new SyntaxToken(kind, null, text);
+            return new SyntaxToken(kind, null, text, start);
         }
 
         switch (Current)
         {
             case '+':
-                _position++;
-                return new SyntaxToken(SyntaxKind.PlusToken, null, "+");
+                return new SyntaxToken(SyntaxKind.PlusToken, null, "+", _position++);
             case '-':
-                _position++;
-                return new SyntaxToken(SyntaxKind.MinusToken, null, "-");
+                return new SyntaxToken(SyntaxKind.MinusToken, null, "-", _position++);
             case '*':
-                _position++;
-                return new SyntaxToken(SyntaxKind.StarToken, null, "*");
+                return new SyntaxToken(SyntaxKind.StarToken, null, "*", _position++);
             case '/':
-                _position++;
-                return new SyntaxToken(SyntaxKind.SlashToken, null, "/");
+                return new SyntaxToken(SyntaxKind.SlashToken, null, "/", _position++);
             case '(':
-                _position++;
-                return new SyntaxToken(SyntaxKind.OpenParenthesis, null, "(");
+                return new SyntaxToken(SyntaxKind.OpenParenthesis, null, "(", _position++);
             case ')':
-                _position++;
-                return new SyntaxToken(SyntaxKind.CloseParenthesis, null, ")");
+                return new SyntaxToken(SyntaxKind.CloseParenthesis, null, ")", _position++);
             case '!':
                 if (Lookahead == '=')
                 {
                     _position += 2;
-                    return new SyntaxToken(SyntaxKind.BangEqualsToken, null, "!=");
+                    return new SyntaxToken(SyntaxKind.BangEqualsToken, null, "!=", start);
                 }
-                _position++;
-                return new SyntaxToken(SyntaxKind.BangToken, null, "!");
+                return new SyntaxToken(SyntaxKind.BangToken, null, "!", _position++);
             case '&':
                 if (Lookahead == '&')
                 {
                     _position += 2;
-                    return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, null, "&&");
+                    return new SyntaxToken(SyntaxKind.AmpersandAmpersandToken, null, "&&", start);
                 }
 
                 goto default;
@@ -115,7 +107,7 @@ public class Lexer
                 if (Lookahead == '|')
                 {
                     _position += 2;
-                    return new SyntaxToken(SyntaxKind.PipePipeToken, null, "||");
+                    return new SyntaxToken(SyntaxKind.PipePipeToken, null, "||", start);
                 }
 
                 goto default;
@@ -123,14 +115,13 @@ public class Lexer
                 if (Lookahead == '=')
                 {
                     _position += 2;
-                    return new SyntaxToken(SyntaxKind.EqualsEqualsToken, null, "==");
+                    return new SyntaxToken(SyntaxKind.EqualsEqualsToken, null, "==", start);
                 }
 
                 goto default;
             default:
-                _position++;
-                _diagnostics.Add($"ERROR: bad character input: '{Current}'");
-                return new SyntaxToken(SyntaxKind.BadResultToken, null, string.Empty);
+                Diagnostics.ReportBadCharacter(_position, Current);
+                return new SyntaxToken(SyntaxKind.BadResultToken, null, string.Empty, _position++);
         }
     }
 }

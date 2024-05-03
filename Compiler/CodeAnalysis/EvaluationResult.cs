@@ -2,10 +2,10 @@
 
 public sealed class EvaluationResult
 {
-    public IReadOnlyList<string> Diagnostic { get; }
+    public IEnumerable<Diagnostic> Diagnostic { get; }
     public object Value { get; }
     
-    public EvaluationResult(IReadOnlyList<string> diagnostic, object value)
+    public EvaluationResult(IEnumerable<Diagnostic> diagnostic, object value)
     {
         Diagnostic = diagnostic;
         Value = value;
