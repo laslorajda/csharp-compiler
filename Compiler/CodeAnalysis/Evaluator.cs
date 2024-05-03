@@ -1,13 +1,14 @@
 using Compiler.CodeAnalysis.Binding;
+using Compiler.CodeAnalysis.Syntax;
 
 namespace Compiler.CodeAnalysis;
 
 internal class Evaluator
 {
     private readonly BoundExpression _root;
-    private readonly Dictionary<string, object> _variables;
+    private readonly Dictionary<VariableSyntax, object> _variables;
 
-    public Evaluator(BoundExpression root, Dictionary<string, object> variables)
+    public Evaluator(BoundExpression root, Dictionary<VariableSyntax, object> variables)
     {
         _root = root;
         _variables = variables;
@@ -27,11 +28,11 @@ internal class Evaluator
                 case BoundLiteralExpression n:
                     return n.Value;
                 case BoundVariableExpression v:
-                    return _variables[v.Name];
+                    return _variables[v.Variable];
                 case BoundAssignmentExpression a:
                 {
                     var value = EvaluateExpression(a.Expression);
-                    _variables[a.Name] = value;
+                    _variables[a.Variable] = value;
                     return value;
                 }
                 case BoundUnaryExpression u:

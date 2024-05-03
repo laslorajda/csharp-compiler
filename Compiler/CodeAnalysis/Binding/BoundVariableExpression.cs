@@ -1,14 +1,15 @@
-﻿namespace Compiler.CodeAnalysis.Binding;
+﻿using Compiler.CodeAnalysis.Syntax;
+
+namespace Compiler.CodeAnalysis.Binding;
 
 internal sealed class BoundVariableExpression : BoundExpression
 {
-    public BoundVariableExpression(string name, Type type)
-    {
-        Name = name;
-        Type = type;
-    }
-
-    public string Name { get; }
-    internal override Type Type { get; }
+    public VariableSyntax Variable { get; }
     internal override BoundNodeKind Kind => BoundNodeKind.VariableExpression;
+    internal override Type? Type => Variable.Type;
+    public BoundVariableExpression(VariableSyntax variable)
+    {
+        Variable = variable;
+    }
+    
 }

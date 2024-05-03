@@ -4,10 +4,10 @@ namespace Compiler.CodeAnalysis.Binding;
 
 internal sealed class Binder
 {
-    private readonly Dictionary<string, object> _variables;
+    private readonly Dictionary<VariableSyntax, object> _variables;
     public readonly DiagnosticBag Diagnostics = new();
 
-    public Binder(Dictionary<string, object> variables)
+    public Binder(Dictionary<VariableSyntax, object> variables)
     {
         _variables = variables;
     }
@@ -64,20 +64,31 @@ internal sealed class Binder
     private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
     {
         var name = syntax.IdentifierToken.Text;
-        if (!_variables.TryGetValue(name, out var value))
+        var variable = _variables.Keys.SingleOrDefault(x => x.Name == name);
+        
+        if (variable != null)
         {
-            Diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
-            return new BoundLiteralExpression(0);
+            return new BoundVariableExpression(variable);
         }
 
-        var type = value?.GetType() ?? typeof(object);
-        return new BoundVariableExpression(name, type);
+        Diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+        return new BoundLiteralExpression(0);
+
     }
 
     private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
     {
         var name = syntax.IdentifierToken.Text;
         var boundExpression = BindExpression(syntax.Expression);
-        return new BoundAssignmentExpression(name, boundExpression);
+        
+        var existingVariable = _variables.Keys.SingleOrDefault(x => x.Name == name);
+        if (existingVariable != null)
+        {
+            _variables.Remove(existingVariable);
+        }
+        var variable = new VariableSyntax(name, boundExpression.Type!);
+        _variables.Add(variable, null!);
+        
+        return new BoundAssignmentExpression(variable, boundExpression);
     }
 }

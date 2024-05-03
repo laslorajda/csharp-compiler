@@ -11,7 +11,7 @@ public sealed class Compilation
         SyntaxTree = syntaxTree;
     }
 
-    public EvaluationResult Evaluate(Dictionary<string, object> variables)
+    public EvaluationResult Evaluate(Dictionary<VariableSyntax, object> variables)
     {
         var binder = new Binder(variables);
         var boundExpression = binder.BindExpression(SyntaxTree.Root);
