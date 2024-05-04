@@ -11,16 +11,20 @@ public sealed class Compilation
         SyntaxTree = syntaxTree;
     }
 
-    public EvaluationResult Evaluate()
+    public EvaluationResult Evaluate(Dictionary<VariableSyntax, object> variables)
     {
-        var binder = new Binder();
+        var binder = new Binder(variables);
         var boundExpression = binder.BindExpression(SyntaxTree.Root);
         
-        var diagnostics = SyntaxTree.Diagnostics.Concat(binder.Diagnostics);
+        var diagnostics = SyntaxTree.Diagnostics.Concat(binder.Diagnostics).ToList();
+        if (diagnostics.Count != 0)
+        {
+            return new EvaluationResult(diagnostics, null!);
+        }
         
-        var evaluator = new Evaluator(boundExpression);
+        var evaluator = new Evaluator(boundExpression, variables);
         var value = evaluator.Evaluate();
 
-        return new EvaluationResult(Array.Empty<string>(), value);
+        return new EvaluationResult(Array.Empty<Diagnostic>(), value);
     }
 }

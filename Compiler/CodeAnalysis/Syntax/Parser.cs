@@ -4,10 +4,9 @@ public sealed class Parser
 {
     private readonly SyntaxToken[] _tokens;
     private int _position;
-    private readonly List<string> _diagnostics = [];
-    
-    public IEnumerable<string> Diagnostic => _diagnostics;
-    
+
+    public DiagnosticBag Diagnostics { get; } = new();
+
     public Parser(string text)
     {
         var lexer = new Lexer(text);
@@ -24,7 +23,7 @@ public sealed class Parser
         } while (token.Kind != SyntaxKind.EndOfFileToken);
 
         _tokens = tokens.ToArray();
-        _diagnostics.AddRange(lexer.Diagnostic);
+        Diagnostics.AddRange(lexer.Diagnostics);
     }
 
     private SyntaxToken Current => Peek(0);
@@ -45,10 +44,25 @@ public sealed class Parser
     public SyntaxTree Parse()
     {
         var expression = ParseExpression();
-        return new SyntaxTree(expression, _diagnostics);
+        return new SyntaxTree(expression, Diagnostics);
     }
 
-    private ExpressionSyntax ParseExpression(int parentPrecedence = 0)
+    private ExpressionSyntax ParseExpression() => ParseAssignmentExpression();
+
+    private ExpressionSyntax ParseAssignmentExpression()
+    {
+        if (Peek(0).Kind == SyntaxKind.IdentifierToken && Peek(1).Kind == SyntaxKind.EqualsToken)
+        {
+            var left = NextToken();
+            var operatorToken = NextToken();
+            var right = ParseAssignmentExpression();
+            return new AssignmentExpressionSyntax(left, operatorToken, right);
+        }
+
+        return ParseBinaryExpression();
+    }
+
+    private ExpressionSyntax ParseBinaryExpression(int parentPrecedence = 0)
     {
         ExpressionSyntax left;
         var unaryOperatorPrecedence = Current.Kind.GetUnaryOperatorPrecedence();
@@ -56,7 +70,7 @@ public sealed class Parser
         if (unaryOperatorPrecedence != 0 && unaryOperatorPrecedence >= parentPrecedence)
         {
             var operatorToken = NextToken();
-            var operand = ParseExpression(unaryOperatorPrecedence);
+            var operand = ParseBinaryExpression(unaryOperatorPrecedence);
             left = new UnaryExpressionSyntax(operatorToken, operand);
         }
         else
@@ -73,7 +87,7 @@ public sealed class Parser
             }
             
             var operatorToken = NextToken();
-            var right = ParseExpression(precedence);
+            var right = ParseBinaryExpression(precedence);
             left = new BinaryExpressionSyntax(left, operatorToken, right);
         }
 
@@ -91,7 +105,7 @@ public sealed class Parser
                 var right = NextToken();
                 if (right.Kind != SyntaxKind.CloseParenthesis)
                 {
-                    _diagnostics.Add($"ERROR: Expected ')' but got '{right.Value}'");
+                    Diagnostics.ReportUnexpectedToken(Current.Span, right.Kind, SyntaxKind.CloseParenthesis);
                 }
 
                 return new ParenthesizedExpressionSyntax(left, expression, right);
@@ -102,11 +116,16 @@ public sealed class Parser
                 var value = keyWordToken.Kind == SyntaxKind.TrueKeyword;
                 return new LiteralExpressionSyntax(keyWordToken, value);
             }
+            case SyntaxKind.IdentifierToken:
+            {
+                var identifierToken = NextToken();
+                return new NameExpressionSyntax(identifierToken);
+            }
         }
 
         if (Current.Kind != SyntaxKind.NumberToken)
         {
-            _diagnostics.Add($"ERROR: Unexpected token <{Current.Kind}>, expected <NumberToken>");
+            Diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, SyntaxKind.NumberToken);
         }
 
         return new LiteralExpressionSyntax(NextToken());

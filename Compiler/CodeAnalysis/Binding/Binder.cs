@@ -4,9 +4,14 @@ namespace Compiler.CodeAnalysis.Binding;
 
 internal sealed class Binder
 {
-    private readonly List<string> _diagnostics = [];
-    internal IEnumerable<string> Diagnostics => _diagnostics;
-    
+    private readonly Dictionary<VariableSyntax, object> _variables;
+    public readonly DiagnosticBag Diagnostics = new();
+
+    public Binder(Dictionary<VariableSyntax, object> variables)
+    {
+        _variables = variables;
+    }
+
     internal BoundExpression BindExpression(ExpressionSyntax syntax)
     {
         return syntax.Kind switch
@@ -15,10 +20,11 @@ internal sealed class Binder
             SyntaxKind.UnaryExpression => BindUnaryExpression((UnaryExpressionSyntax) syntax),
             SyntaxKind.BinaryExpression => BindBinaryExpression((BinaryExpressionSyntax) syntax),
             SyntaxKind.ParenthesizedExpression => BindExpression(((ParenthesizedExpressionSyntax)syntax).Expression),
+            SyntaxKind.NameExpression => BindNameExpression((NameExpressionSyntax) syntax),
+            SyntaxKind.AssignmentExpression => BindAssignmentExpression((AssignmentExpressionSyntax) syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}")
         };
     }
-
 
     private static BoundLiteralExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
     {
@@ -29,10 +35,12 @@ internal sealed class Binder
     private BoundExpression BindUnaryExpression(UnaryExpressionSyntax syntax)
     {
         var boundOperand = BindExpression(syntax.Operand);
-        var boundOperatorKind = BoundUnaryOperator.Bind(syntax.OperatorToken.Kind, boundOperand.Type);
+        var boundOperandType = boundOperand.Type!;
+        var boundOperatorKind = BoundUnaryOperator.Bind(syntax.OperatorToken.Kind, boundOperandType);
         if (boundOperatorKind == null)
         {
-            _diagnostics.Add($"Unary operator {syntax.OperatorToken.Text} is not defined for type {boundOperand.Type}");
+            Diagnostics.ReportUndefinedUnaryOperator(syntax.OperatorToken.Span, syntax.OperatorToken.Text,
+                boundOperandType);
             return boundOperand;
         }
         return new BoundUnaryExpression(boundOperatorKind, boundOperand);
@@ -45,11 +53,42 @@ internal sealed class Binder
         var boundOperatorKind = BoundBinaryOperator.Bind(syntax.OperatorToken.Kind, boundLeft.Type, boundRight.Type);
         if (boundOperatorKind == null)
         {
-            _diagnostics.Add(
-                $"Binary operator '{syntax.OperatorToken.Text}' is not defined for types {boundLeft.Type} and {boundRight.Type}");
+            Diagnostics.ReportUndefinedBinaryOperator(syntax.OperatorToken.Span, syntax.OperatorToken.Text,
+                boundLeft.Type, boundRight.Type);
             return boundLeft;
         }
 
         return new BoundBinaryExpression(boundLeft, boundOperatorKind, boundRight);
+    }
+
+    private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
+    {
+        var name = syntax.IdentifierToken.Text;
+        var variable = _variables.Keys.SingleOrDefault(x => x.Name == name);
+        
+        if (variable != null)
+        {
+            return new BoundVariableExpression(variable);
+        }
+
+        Diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+        return new BoundLiteralExpression(0);
+
+    }
+
+    private BoundExpression BindAssignmentExpression(AssignmentExpressionSyntax syntax)
+    {
+        var name = syntax.IdentifierToken.Text;
+        var boundExpression = BindExpression(syntax.Expression);
+        
+        var existingVariable = _variables.Keys.SingleOrDefault(x => x.Name == name);
+        if (existingVariable != null)
+        {
+            _variables.Remove(existingVariable);
+        }
+        var variable = new VariableSyntax(name, boundExpression.Type!);
+        _variables.Add(variable, null!);
+        
+        return new BoundAssignmentExpression(variable, boundExpression);
     }
 }
