@@ -23,7 +23,7 @@ public class SyntaxTree
         var lexer = new Lexer(text);
         while (true)
         {
-            var token = lexer.GetNextToken();
+            var token = lexer.Lex();
             if(token.Kind == SyntaxKind.EndOfFileToken)
                 break;
 
