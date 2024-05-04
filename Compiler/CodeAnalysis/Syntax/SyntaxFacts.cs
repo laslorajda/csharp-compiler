@@ -47,4 +47,10 @@ public static class SyntaxFacts
             SyntaxKind.TrueKeyword => "true",
             _ => string.Empty
         };
+    
+    public static IEnumerable<SyntaxKind> GetUnaryOperatorKinds() =>
+        Enum.GetValues<SyntaxKind>().Where(kind => GetUnaryOperatorPrecedence(kind) > 0);
+    
+    public static IEnumerable<SyntaxKind> GetBinaryOperatorKinds() =>
+        Enum.GetValues<SyntaxKind>().Where(kind => GetBinaryOperatorPrecedence(kind) > 0);
 }
