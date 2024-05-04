@@ -75,29 +75,19 @@ public class LexerTests
 
     private static IEnumerable<(SyntaxKind Kind, string Text)> GetTokens()
     {
-        return
-        [
-            (SyntaxKind.PlusToken, "+"),
-            (SyntaxKind.MinusToken, "-"),
-            (SyntaxKind.StarToken, "*"),
-            (SyntaxKind.SlashToken, "/"),
-            (SyntaxKind.BangToken, "!"),
-            (SyntaxKind.EqualsToken, "="),
-            (SyntaxKind.AmpersandAmpersandToken, "&&"),
-            (SyntaxKind.PipePipeToken, "||"),
-            (SyntaxKind.EqualsEqualsToken, "=="),
-            (SyntaxKind.BangEqualsToken, "!="),
-            (SyntaxKind.OpenParenthesis, "("),
-            (SyntaxKind.CloseParenthesis, ")"),
+        var fixedTokens = Enum.GetValues<SyntaxKind>().Where(kind => SyntaxFacts.GetText(kind) != string.Empty)
+            .Select(kind => (kind, SyntaxFacts.GetText(kind)));
 
-            (SyntaxKind.FalseKeyword, "false"),
-            (SyntaxKind.TrueKeyword, "true"),
+        var dynamicTokens = new[]
+        {
             (SyntaxKind.IdentifierToken, "a"),
             (SyntaxKind.IdentifierToken, "abc"),
 
             (SyntaxKind.NumberToken, "1"),
             (SyntaxKind.NumberToken, "123"),
-        ];
+        };
+
+        return fixedTokens.Concat(dynamicTokens);
     }
 
     private static bool RequiresSeparator(SyntaxKind t1Kind, SyntaxKind t2Kind)
