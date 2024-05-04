@@ -1,6 +1,6 @@
 ﻿namespace Compiler.CodeAnalysis.Syntax;
 
-internal static class SyntaxFacts
+public static class SyntaxFacts
 {
     internal static int GetBinaryOperatorPrecedence(this SyntaxKind kind) =>
         kind switch
@@ -26,5 +26,25 @@ internal static class SyntaxFacts
             "true" => SyntaxKind.TrueKeyword,
             "false" => SyntaxKind.FalseKeyword,
             _ => SyntaxKind.IdentifierToken
+        };
+
+    public static string GetText(SyntaxKind kind) =>
+        kind switch
+        {
+            SyntaxKind.PlusToken => "+",
+            SyntaxKind.MinusToken => "-",
+            SyntaxKind.StarToken => "*",
+            SyntaxKind.SlashToken => "/",
+            SyntaxKind.BangToken => "!",
+            SyntaxKind.EqualsToken => "=",
+            SyntaxKind.AmpersandAmpersandToken => "&&",
+            SyntaxKind.PipePipeToken => "||",
+            SyntaxKind.EqualsEqualsToken => "==",
+            SyntaxKind.BangEqualsToken => "!=",
+            SyntaxKind.OpenParenthesis => "(",
+            SyntaxKind.CloseParenthesis => ")",
+            SyntaxKind.FalseKeyword => "false",
+            SyntaxKind.TrueKeyword => "true",
+            _ => string.Empty
         };
 }
