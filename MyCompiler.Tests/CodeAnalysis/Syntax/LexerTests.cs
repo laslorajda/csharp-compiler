@@ -5,6 +5,22 @@ namespace MyCompiler.Tests.CodeAnalysis.Syntax;
 
 public class LexerTests
 {
+    [Fact]
+    public void LexerTestsAllTokens()
+    {
+        var tokenKinds = Enum.GetValues<SyntaxKind>()
+            .Where(kind => kind.ToString().EndsWith("Keyword") || kind.ToString().EndsWith("Token"))
+            .ToArray();
+
+        var testedTokenKinds = GetTokens().Concat(GetSeparators()).Select(t => t.Kind).ToArray();
+        var untestedTokenKinds = new SortedSet<SyntaxKind>(tokenKinds);
+        untestedTokenKinds.Remove(SyntaxKind.BadResultToken);
+        untestedTokenKinds.Remove(SyntaxKind.EndOfFileToken);
+        untestedTokenKinds.ExceptWith(testedTokenKinds);
+        
+        untestedTokenKinds.Should().BeEmpty();
+    }
+    
     [Theory]
     [MemberData(nameof(GetTokensData))]
     public void LexerLexesToken(SyntaxKind kind, string text)
