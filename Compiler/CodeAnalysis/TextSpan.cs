@@ -11,4 +11,10 @@ public struct TextSpan
         Start = start;
         Length = length;
     }
+
+    public static TextSpan FromBounds(int start, int ebd)
+    {
+        var length = ebd - start;
+        return new TextSpan(start, length);
+    }
 }
