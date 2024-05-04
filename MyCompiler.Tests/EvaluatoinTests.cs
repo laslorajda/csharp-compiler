@@ -15,6 +15,7 @@ public class EvaluatoinTests
     [InlineData("3 * 4", 12)]
     [InlineData("8 / 4", 2)]
     [InlineData("(10)", 10)]
+    [InlineData("(10 + 2) * 2", 24)]
     [InlineData("12 == 5", false)]
     [InlineData("12 != 5", true)]
     [InlineData("4 == 4", true)]
