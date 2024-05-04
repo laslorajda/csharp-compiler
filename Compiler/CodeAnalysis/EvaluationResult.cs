@@ -2,12 +2,12 @@
 
 public sealed class EvaluationResult
 {
-    public IEnumerable<Diagnostic> Diagnostic { get; }
+    public IEnumerable<Diagnostic> Diagnostics { get; }
     public object Value { get; }
     
-    public EvaluationResult(IEnumerable<Diagnostic> diagnostic, object value)
+    public EvaluationResult(IEnumerable<Diagnostic> diagnostics, object value)
     {
-        Diagnostic = diagnostic;
+        Diagnostics = diagnostics;
         Value = value;
     }
 }
