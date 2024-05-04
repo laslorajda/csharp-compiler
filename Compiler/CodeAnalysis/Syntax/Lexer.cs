@@ -1,6 +1,6 @@
 ﻿namespace Compiler.CodeAnalysis.Syntax;
 
-public class Lexer
+internal sealed class Lexer
 {
     private readonly string _text;
     private int _position;
@@ -38,7 +38,9 @@ public class Lexer
                 _position++;
             }
 
-            return new SyntaxToken(SyntaxKind.WhitespaceToken, null, string.Empty, start);
+            var length = _position - start;
+            var text = _text.Substring(start, length);
+            return new SyntaxToken(SyntaxKind.WhitespaceToken, null, text, start);
         }
 
         if (char.IsDigit(Current))
