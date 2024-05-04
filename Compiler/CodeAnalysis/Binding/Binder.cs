@@ -4,10 +4,10 @@ namespace Compiler.CodeAnalysis.Binding;
 
 internal sealed class Binder
 {
-    private readonly Dictionary<VariableSyntax, object> _variables;
+    private readonly Dictionary<VariableSymbol, object> _variables;
     public readonly DiagnosticBag Diagnostics = new();
 
-    public Binder(Dictionary<VariableSyntax, object> variables)
+    public Binder(Dictionary<VariableSymbol, object> variables)
     {
         _variables = variables;
     }
@@ -86,7 +86,7 @@ internal sealed class Binder
         {
             _variables.Remove(existingVariable);
         }
-        var variable = new VariableSyntax(name, boundExpression.Type!);
+        var variable = new VariableSymbol(name, boundExpression.Type!);
         _variables.Add(variable, null!);
         
         return new BoundAssignmentExpression(variable, boundExpression);

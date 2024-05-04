@@ -7,7 +7,7 @@ namespace MyCompilerTests;
 
 public class EvaluatorFixture
 {
-    private readonly Dictionary<VariableSyntax, object> _variables = new();
+    private readonly Dictionary<VariableSymbol, object> _variables = new();
 
     [Fact]
     public void SingleNumberShouldReturnNumberValue()

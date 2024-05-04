@@ -53,13 +53,14 @@ internal sealed class Lexer
             var length = _position - start;
             var text = _text.Substring(start, length);
 
-            if (!int.TryParse(text, out var result))
+            if (int.TryParse(text, out var result))
             {
-                return new SyntaxToken(SyntaxKind.BadResultToken, null, text, start);
+                return new SyntaxToken(SyntaxKind.NumberToken, result, text, start);
             }
 
             Diagnostics.ReportInvalidNumber(new TextSpan(start, length), text, typeof(int));
-            return new SyntaxToken(SyntaxKind.NumberToken, result, text, start);
+            return new SyntaxToken(SyntaxKind.BadResultToken, null, text, start);
+
         }
 
         if (char.IsLetter(Current))

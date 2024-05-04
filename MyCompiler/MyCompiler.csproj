@@ -10,4 +10,8 @@
     <ItemGroup>
         <InternalsVisibleTo  Include="MyCompilerTests" />
     </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Compiler\Compiler.csproj" />
+    </ItemGroup>
 </Project>

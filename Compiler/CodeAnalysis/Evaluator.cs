@@ -6,9 +6,9 @@ namespace Compiler.CodeAnalysis;
 internal class Evaluator
 {
     private readonly BoundExpression _root;
-    private readonly Dictionary<VariableSyntax, object> _variables;
+    private readonly Dictionary<VariableSymbol, object> _variables;
 
-    public Evaluator(BoundExpression root, Dictionary<VariableSyntax, object> variables)
+    public Evaluator(BoundExpression root, Dictionary<VariableSymbol, object> variables)
     {
         _root = root;
         _variables = variables;
