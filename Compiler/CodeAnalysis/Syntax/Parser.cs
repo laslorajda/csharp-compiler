@@ -5,7 +5,7 @@ public sealed class Parser
     private readonly SyntaxToken[] _tokens;
     private int _position;
 
-    public DiagnosticBag Diagnostics { get; } = new();
+    private readonly DiagnosticBag _diagnostics = new();
 
     public Parser(string text)
     {
@@ -23,7 +23,7 @@ public sealed class Parser
         } while (token.Kind != SyntaxKind.EndOfFileToken);
 
         _tokens = tokens.ToArray();
-        Diagnostics.AddRange(lexer.Diagnostics);
+        _diagnostics.AddRange(lexer.Diagnostics);
     }
 
     private SyntaxToken Current => Peek(0);
@@ -44,7 +44,7 @@ public sealed class Parser
     public SyntaxTree Parse()
     {
         var expression = ParseExpression();
-        return new SyntaxTree(expression, Diagnostics);
+        return new SyntaxTree(expression, _diagnostics);
     }
 
     private ExpressionSyntax ParseExpression() => ParseAssignmentExpression();
@@ -98,37 +98,53 @@ public sealed class Parser
     {
         switch (Current.Kind)
         {
+            case SyntaxKind.NumberToken:
+                return new LiteralExpressionSyntax(NextToken());
             case SyntaxKind.OpenParenthesis:
             {
-                var left = NextToken();
-                var expression = ParseExpression();
-                var right = NextToken();
-                if (right.Kind != SyntaxKind.CloseParenthesis)
-                {
-                    Diagnostics.ReportUnexpectedToken(Current.Span, right.Kind, SyntaxKind.CloseParenthesis);
-                }
-
-                return new ParenthesizedExpressionSyntax(left, expression, right);
+                return ParseParenthesizedExpression();
             }
             case SyntaxKind.TrueKeyword or SyntaxKind.FalseKeyword:
             {
-                var keyWordToken = NextToken();
-                var value = keyWordToken.Kind == SyntaxKind.TrueKeyword;
-                return new LiteralExpressionSyntax(keyWordToken, value);
+                return ParseBooleanLiteralExpression();
             }
             case SyntaxKind.IdentifierToken:
+            default:
             {
-                var identifierToken = NextToken();
-                return new NameExpressionSyntax(identifierToken);
+                return PraseNameExpression();
             }
         }
-
-        if (Current.Kind != SyntaxKind.NumberToken)
-        {
-            Diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, SyntaxKind.NumberToken);
-        }
-
-        return new LiteralExpressionSyntax(NextToken());
     }
 
+    private ParenthesizedExpressionSyntax ParseParenthesizedExpression()
+    {
+        var left = NextToken();
+        
+        if(left.Kind != SyntaxKind.OpenParenthesis)
+        {
+            _diagnostics.ReportUnexpectedToken(Current.Span, left.Kind, SyntaxKind.OpenParenthesis);
+        }
+        
+        var expression = ParseExpression();
+        var right = NextToken();
+        if (right.Kind != SyntaxKind.CloseParenthesis)
+        {
+            _diagnostics.ReportUnexpectedToken(Current.Span, right.Kind, SyntaxKind.CloseParenthesis);
+        }
+
+        return new ParenthesizedExpressionSyntax(left, expression, right);
+    }
+
+    private LiteralExpressionSyntax ParseBooleanLiteralExpression()
+    {
+        var keyWordToken = NextToken();
+        var value = keyWordToken.Kind == SyntaxKind.TrueKeyword;
+        return new LiteralExpressionSyntax(keyWordToken, value);
+    }
+
+    private NameExpressionSyntax PraseNameExpression()
+    {
+        var identifierToken = NextToken();
+        return new NameExpressionSyntax(identifierToken);
+    }
 }
