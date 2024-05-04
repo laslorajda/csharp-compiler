@@ -12,8 +12,6 @@ public class SyntaxToken : SyntaxNode
         Position = position;
     }
     
-    public override IEnumerable<SyntaxNode> GetChildren() => Enumerable.Empty<SyntaxNode>();
-
     public object? Value { get; }
     public string Text { get; }
     public int Position { get; }

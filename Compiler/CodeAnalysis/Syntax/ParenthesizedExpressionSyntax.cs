@@ -2,9 +2,9 @@ namespace Compiler.CodeAnalysis.Syntax;
 
 public class ParenthesizedExpressionSyntax : ExpressionSyntax
 {
-    public readonly SyntaxToken Left;
-    public readonly ExpressionSyntax Expression;
-    public readonly SyntaxToken Right;
+    public SyntaxToken Left { get; }
+    public ExpressionSyntax Expression { get; }
+    public SyntaxToken Right { get; }
 
     public ParenthesizedExpressionSyntax(SyntaxToken left, ExpressionSyntax expression, SyntaxToken right)
     {
@@ -14,11 +14,4 @@ public class ParenthesizedExpressionSyntax : ExpressionSyntax
     }
 
     public override SyntaxKind Kind => SyntaxKind.ParenthesizedExpression;
-
-    public override IEnumerable<SyntaxNode> GetChildren()
-    {
-        yield return Left;
-        yield return Expression;
-        yield return Right;
-    }
 }

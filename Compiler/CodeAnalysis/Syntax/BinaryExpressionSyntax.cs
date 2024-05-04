@@ -2,9 +2,9 @@ namespace Compiler.CodeAnalysis.Syntax;
 
 public class BinaryExpressionSyntax : ExpressionSyntax
 {
-    public readonly ExpressionSyntax Left;
-    public readonly SyntaxToken OperatorToken;
-    public readonly ExpressionSyntax Right;
+    public ExpressionSyntax Left { get; }
+    public SyntaxToken OperatorToken { get; }
+    public ExpressionSyntax Right { get; }
 
     public BinaryExpressionSyntax(ExpressionSyntax left, SyntaxToken operatorToken, ExpressionSyntax right)
     {
@@ -14,11 +14,4 @@ public class BinaryExpressionSyntax : ExpressionSyntax
     }
 
     public override SyntaxKind Kind => SyntaxKind.BinaryExpression;
-
-    public override IEnumerable<SyntaxNode> GetChildren()
-    {
-        yield return Left;
-        yield return OperatorToken;
-        yield return Right;
-    }
 }
