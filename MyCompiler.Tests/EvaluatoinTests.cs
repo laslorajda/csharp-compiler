@@ -37,8 +37,8 @@ public class EvaluatoinTests
     [InlineData("!true", false)]
     [InlineData("!false", true)]
     [InlineData("!!true", true)]
-    [InlineData("(a = 5) * a", 25)]
-    public void Temp(string text, object expectedValue)
+    [InlineData("{ var a = 0 (a = 5) * a}", 25)]
+    public void  EvaluationTests(string text, object expectedValue)
     {
         var syntaxTree = SyntaxTree.Parse(text);
         var compliation = new Compilation(syntaxTree);

@@ -4,15 +4,18 @@ namespace Compiler.CodeAnalysis.Syntax;
 
 public class SyntaxTree
 {
-    public SyntaxTree(SourceText text, ExpressionSyntax root, DiagnosticBag diagnostics)
+    private SyntaxTree(SourceText text)
     {
+        var parser = new Parser(text);
+        var root = parser.ParseCompliationUnit();
+        Diagnostics = parser.Diagnostics;
+        
         Text = text;
         Root = root;
-        Diagnostics = diagnostics;
     }
 
     public SourceText Text { get; }
-    public ExpressionSyntax Root { get; }
+    public CompilationUnitSyntax Root { get; }
 
     public DiagnosticBag Diagnostics { get; }
 
@@ -22,10 +25,9 @@ public class SyntaxTree
         return Parse(sourceText);
     }
 
-    public static SyntaxTree Parse(SourceText text)
+    private static SyntaxTree Parse(SourceText text)
     {
-        var parser = new Parser(text);
-        return parser.Parse();
+        return new SyntaxTree(text);
     }
 
     public static IEnumerable<SyntaxToken> ParseTokens(string text)
@@ -34,7 +36,7 @@ public class SyntaxTree
         return ParseTokens(sourceText);
     }
 
-    public static IEnumerable<SyntaxToken> ParseTokens(SourceText text)
+    private static IEnumerable<SyntaxToken> ParseTokens(SourceText text)
     {
         var lexer = new Lexer(text);
         while (true)

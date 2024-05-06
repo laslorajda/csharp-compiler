@@ -30,7 +30,7 @@ internal sealed class Lexer
         _start = _position;
         _kind = SyntaxKind.BadResultToken;
         _value = null!;
-        
+
         switch (Current)
         {
             case '\0':
@@ -53,11 +53,19 @@ internal sealed class Lexer
                 _position++;
                 break;
             case '(':
-                _kind = SyntaxKind.OpenParenthesis;
+                _kind = SyntaxKind.OpenParenthesisToken;
                 _position++;
                 break;
             case ')':
-                _kind = SyntaxKind.CloseParenthesis;
+                _kind = SyntaxKind.CloseParenthesisToken;
+                _position++;
+                break;
+            case '{':
+                _kind = SyntaxKind.OpenBraceToken;
+                _position++;
+                break;
+            case '}':
+                _kind = SyntaxKind.CloseBraceToken;
                 _position++;
                 break;
             case '!':
@@ -124,7 +132,8 @@ internal sealed class Lexer
                 if (char.IsLetter(Current))
                 {
                     ReadIdentifierOrKeyword();
-                }else if (char.IsWhiteSpace(Current))
+                }
+                else if (char.IsWhiteSpace(Current))
                 {
                     ReadWhitespace();
                 }
@@ -183,7 +192,7 @@ internal sealed class Lexer
         {
             _position++;
         }
-        
+
         var length = _position - _start;
         var text = _text.ToString(_start, length);
         _kind = SyntaxFacts.GetKeywordKind(text);
