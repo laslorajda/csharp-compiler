@@ -1,4 +1,6 @@
-﻿namespace Compiler.CodeAnalysis.Syntax;
+﻿using Compiler.CodeAnalysis.Text;
+
+namespace Compiler.CodeAnalysis.Syntax;
 
 public class SyntaxToken : SyntaxNode
 {
@@ -12,10 +14,8 @@ public class SyntaxToken : SyntaxNode
         Position = position;
     }
     
-    public override IEnumerable<SyntaxNode> GetChildren() => Enumerable.Empty<SyntaxNode>();
-
     public object? Value { get; }
     public string Text { get; }
     public int Position { get; }
-    public TextSpan Span => new TextSpan(Position, Text.Length);
+    public override TextSpan Span => new(Position, Text.Length);
 }

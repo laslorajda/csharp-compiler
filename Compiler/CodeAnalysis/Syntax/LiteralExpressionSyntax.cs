@@ -16,9 +16,4 @@ public class LiteralExpressionSyntax : ExpressionSyntax
     public LiteralExpressionSyntax(SyntaxToken literalToken) : this(literalToken, literalToken.Value)
     {
     }
-
-    public override IEnumerable<SyntaxNode> GetChildren()
-    {
-        yield return _literalToken;
-    }
 }

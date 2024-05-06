@@ -5,6 +5,22 @@ namespace MyCompiler.Tests.CodeAnalysis.Syntax;
 
 public class LexerTests
 {
+    [Fact]
+    public void LexerTestsAllTokens()
+    {
+        var tokenKinds = Enum.GetValues<SyntaxKind>()
+            .Where(kind => kind.ToString().EndsWith("Keyword") || kind.ToString().EndsWith("Token"))
+            .ToArray();
+
+        var testedTokenKinds = GetTokens().Concat(GetSeparators()).Select(t => t.Kind).ToArray();
+        var untestedTokenKinds = new SortedSet<SyntaxKind>(tokenKinds);
+        untestedTokenKinds.Remove(SyntaxKind.BadResultToken);
+        untestedTokenKinds.Remove(SyntaxKind.EndOfFileToken);
+        untestedTokenKinds.ExceptWith(testedTokenKinds);
+        
+        untestedTokenKinds.Should().BeEmpty();
+    }
+    
     [Theory]
     [MemberData(nameof(GetTokensData))]
     public void LexerLexesToken(SyntaxKind kind, string text)
@@ -75,29 +91,19 @@ public class LexerTests
 
     private static IEnumerable<(SyntaxKind Kind, string Text)> GetTokens()
     {
-        return
-        [
-            (SyntaxKind.PlusToken, "+"),
-            (SyntaxKind.MinusToken, "-"),
-            (SyntaxKind.StarToken, "*"),
-            (SyntaxKind.SlashToken, "/"),
-            (SyntaxKind.BangToken, "!"),
-            (SyntaxKind.EqualsToken, "="),
-            (SyntaxKind.AmpersandAmpersandToken, "&&"),
-            (SyntaxKind.PipePipeToken, "||"),
-            (SyntaxKind.EqualsEqualsToken, "=="),
-            (SyntaxKind.BangEqualsToken, "!="),
-            (SyntaxKind.OpenParenthesis, "("),
-            (SyntaxKind.CloseParenthesis, ")"),
+        var fixedTokens = Enum.GetValues<SyntaxKind>().Where(kind => SyntaxFacts.GetText(kind) != string.Empty)
+            .Select(kind => (kind, SyntaxFacts.GetText(kind)));
 
-            (SyntaxKind.FalseKeyword, "false"),
-            (SyntaxKind.TrueKeyword, "true"),
+        var dynamicTokens = new[]
+        {
             (SyntaxKind.IdentifierToken, "a"),
             (SyntaxKind.IdentifierToken, "abc"),
 
             (SyntaxKind.NumberToken, "1"),
             (SyntaxKind.NumberToken, "123"),
-        ];
+        };
+
+        return fixedTokens.Concat(dynamicTokens);
     }
 
     private static bool RequiresSeparator(SyntaxKind t1Kind, SyntaxKind t2Kind)
