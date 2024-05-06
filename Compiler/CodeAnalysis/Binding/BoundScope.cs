@@ -4,7 +4,7 @@ namespace Compiler.CodeAnalysis.Binding;
 
 internal sealed class BoundScope
 {
-    private BoundScope? Parent { get; }
+    public BoundScope? Parent { get; }
     private readonly Dictionary<string, VariableSymbol> _variables = new();
 
     public BoundScope(BoundScope? parent)

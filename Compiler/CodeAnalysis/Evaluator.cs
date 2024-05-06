@@ -7,7 +7,7 @@ internal class Evaluator
 {
     private readonly BoundStatement _root;
     private readonly Dictionary<VariableSymbol, object> _variables;
-    private object _lastValue;
+    private object _lastValue = default!;
     
     public Evaluator(BoundStatement root, Dictionary<VariableSymbol, object> variables)
     {
@@ -44,6 +44,9 @@ internal class Evaluator
             case BoundNodeKind.BlockStatement:
                 EvaluateBlockStatement((BoundBlockStatement)statement);
                 break;
+            case BoundNodeKind.VariableDeclarationStatement:
+                EvaludateVariableDeclarationStatement((BoundVariableDeclarationStatement)statement);
+                break;
             case BoundNodeKind.ExpressionStatement:
                 EvaluateExpressionStatement((BoundExpressionStatement)statement);
                 break;
@@ -58,6 +61,13 @@ internal class Evaluator
         {
             EvaluateStatement(statement);
         }
+    }
+
+    private void EvaludateVariableDeclarationStatement(BoundVariableDeclarationStatement node)
+    {
+        var value = EvaluateExpression(node.Initializer);
+        _variables[node.Variable] = value;
+        _lastValue = value;
     }
 
     private void EvaluateExpressionStatement(BoundExpressionStatement node) =>

@@ -76,6 +76,7 @@ internal sealed class Binder
         {
             SyntaxKind.BlockStatement => BindBlockStatement((BlockStatementSyntax) syntax),
             SyntaxKind.ExpressionStatement => BindExpressionStatement((ExpressionStatementSyntax) syntax),
+            SyntaxKind.VariableDeclarationStatement => BindVariableDeclarationStatement((VariableDeclarationStatementSyntax) syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}")
         };
     }
@@ -83,17 +84,35 @@ internal sealed class Binder
     private BoundBlockStatement BindBlockStatement(BlockStatementSyntax syntax)
     {
         var statements = ImmutableArray.CreateBuilder<BoundStatement>();
+        _scope = new BoundScope(_scope);
+        
         foreach (var statement in syntax.Statements.Select(BindStatement))
         {
             statements.Add(statement);
         }
 
+        _scope = _scope.Parent!;
         return new BoundBlockStatement(statements.ToImmutable());
     }
 
     private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
     {
         return new BoundExpressionStatement(BindExpression(syntax.Expression));
+    }
+
+    private BoundStatement BindVariableDeclarationStatement(VariableDeclarationStatementSyntax syntax)
+    {
+        var name = syntax.Identifier.Text;
+        var isReadOnly = syntax.Keyword.Kind == SyntaxKind.LetKeyword;
+        var initializer = BindExpression(syntax.Initializer);
+        var variable = new VariableSymbol(name, isReadOnly, initializer.Type!);
+
+        if (!_scope.TryDeclare(variable))
+        {
+            Diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+        }
+
+        return new BoundVariableDeclarationStatement(variable, initializer);
     }
 
     private static BoundLiteralExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
@@ -155,15 +174,21 @@ internal sealed class Binder
 
         if (!_scope.TryLookup(name, out var variable))
         {
-            variable = new VariableSymbol(name, boundExpression.Type!);
-            _scope.TryDeclare(variable);
+            Diagnostics.ReportUndefinedName(syntax.IdentifierToken.Span, name);
+            return boundExpression;
         }
 
-        if (variable!.Type != boundExpression.Type)
+        if (variable!.IsReadOnly)
+        {
+            Diagnostics.ReportCannotAssign(syntax.EqualsToken.Span, name);
+        }
+        
+        if (variable.Type != boundExpression.Type)
         {
             Diagnostics.ReportCannotConvert(syntax.Expression.Span, boundExpression.Type, variable.Type);
             return boundExpression;
-        }        
+        }  
+        
         return new BoundAssignmentExpression(variable, boundExpression);
     }
 }

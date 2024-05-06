@@ -34,10 +34,13 @@ public enum SyntaxKind
     //Statements
     BlockStatement,
     ExpressionStatement,
+    VariableDeclarationStatement,
 
     // Keywords
     FalseKeyword,
     TrueKeyword,
+    LetKeyword,
+    VarKeyword,
     
     // Nodes
     CompliationUnit
