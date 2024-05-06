@@ -1,6 +1,6 @@
-﻿namespace Compiler.CodeAnalysis;
+﻿namespace Compiler.CodeAnalysis.Text;
 
-public struct TextSpan
+public readonly struct TextSpan
 {
     public int Start { get; }
     public int Length { get; }
@@ -12,9 +12,9 @@ public struct TextSpan
         Length = length;
     }
 
-    public static TextSpan FromBounds(int start, int ebd)
+    public static TextSpan FromBounds(int start, int end)
     {
-        var length = ebd - start;
+        var length = end - start;
         return new TextSpan(start, length);
     }
 }

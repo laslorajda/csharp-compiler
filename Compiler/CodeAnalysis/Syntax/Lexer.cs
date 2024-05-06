@@ -1,14 +1,16 @@
-﻿namespace Compiler.CodeAnalysis.Syntax;
+﻿using Compiler.CodeAnalysis.Text;
+
+namespace Compiler.CodeAnalysis.Syntax;
 
 internal sealed class Lexer
 {
-    private readonly string _text;
+    private readonly SourceText _text;
     private int _position;
     private int _start;
     private SyntaxKind _kind;
     private object _value = null!;
 
-    public Lexer(string text)
+    public Lexer(SourceText text)
     {
         _text = text;
     }
@@ -129,7 +131,7 @@ internal sealed class Lexer
                 else
                 {
                     Diagnostics.ReportBadCharacter(_position, Current);
-                    return new SyntaxToken(SyntaxKind.BadResultToken, null, _text.Substring(_position - 1, 1),
+                    return new SyntaxToken(SyntaxKind.BadResultToken, null, _text.ToString(_position - 1, 1),
                         _position++);
                 }
 
@@ -140,7 +142,7 @@ internal sealed class Lexer
         var text = SyntaxFacts.GetText(_kind);
         if (text == string.Empty)
         {
-            text = _text.Substring(_start, length);
+            text = _text.ToString(_start, length);
         }
 
         return new SyntaxToken(_kind, _value, text, _start);
@@ -164,7 +166,7 @@ internal sealed class Lexer
         }
 
         var length = _position - _start;
-        var text = _text.Substring(_start, length);
+        var text = _text.ToString(_start, length);
 
         if (!int.TryParse(text, out var value))
         {
@@ -183,7 +185,7 @@ internal sealed class Lexer
         }
         
         var length = _position - _start;
-        var text = _text.Substring(_start, length);
+        var text = _text.ToString(_start, length);
         _kind = SyntaxFacts.GetKeywordKind(text);
     }
 }

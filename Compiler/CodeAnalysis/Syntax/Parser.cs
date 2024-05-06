@@ -1,14 +1,18 @@
+using Compiler.CodeAnalysis.Text;
+
 namespace Compiler.CodeAnalysis.Syntax;
 
 public sealed class Parser
 {
+    private readonly SourceText _text;
     private readonly SyntaxToken[] _tokens;
     private int _position;
 
     private readonly DiagnosticBag _diagnostics = new();
 
-    public Parser(string text)
+    public Parser(SourceText text)
     {
+        _text = text;
         var lexer = new Lexer(text);
         IList<SyntaxToken> tokens = [];
 
@@ -44,7 +48,7 @@ public sealed class Parser
     public SyntaxTree Parse()
     {
         var expression = ParseExpression();
-        return new SyntaxTree(expression, _diagnostics);
+        return new SyntaxTree(_text, expression, _diagnostics);
     }
 
     private ExpressionSyntax ParseExpression() => ParseAssignmentExpression();
