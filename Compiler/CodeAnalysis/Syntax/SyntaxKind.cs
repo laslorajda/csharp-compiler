@@ -32,4 +32,7 @@ public enum SyntaxKind
     // Keywords
     FalseKeyword,
     TrueKeyword,
+    
+    // Nodes
+    CompliationUnit
 }

@@ -14,7 +14,7 @@ public sealed class Compilation
     public EvaluationResult Evaluate(Dictionary<VariableSymbol, object> variables)
     {
         var binder = new Binder(variables);
-        var boundExpression = binder.BindExpression(SyntaxTree.Root);
+        var boundExpression = binder.BindExpression(SyntaxTree.Root.Expression);
         
         var diagnostics = SyntaxTree.Diagnostics.Concat(binder.Diagnostics).ToList();
         if (diagnostics.Count != 0)

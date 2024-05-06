@@ -8,7 +8,7 @@ public sealed class Parser
     private readonly SyntaxToken[] _tokens;
     private int _position;
 
-    private readonly DiagnosticBag _diagnostics = new();
+    public readonly DiagnosticBag Diagnostics = new();
 
     public Parser(SourceText text)
     {
@@ -27,7 +27,7 @@ public sealed class Parser
         } while (token.Kind != SyntaxKind.EndOfFileToken);
 
         _tokens = tokens.ToArray();
-        _diagnostics.AddRange(lexer.Diagnostics);
+        Diagnostics.AddRange(lexer.Diagnostics);
     }
 
     private SyntaxToken Current => Peek(0);
@@ -45,10 +45,15 @@ public sealed class Parser
         return current;
     }
     
-    public SyntaxTree Parse()
+    public CompilationUnitSyntax ParseCompliationUnit()
     {
         var expression = ParseExpression();
-        return new SyntaxTree(_text, expression, _diagnostics);
+        var endOfFileToken = NextToken();
+        if (endOfFileToken.Kind != SyntaxKind.EndOfFileToken)
+        {
+            Diagnostics.ReportUnexpectedToken(endOfFileToken.Span, endOfFileToken.Kind, SyntaxKind.EndOfFileToken);
+        }
+        return new CompilationUnitSyntax(expression, endOfFileToken);
     }
 
     private ExpressionSyntax ParseExpression() => ParseAssignmentExpression();
@@ -126,14 +131,14 @@ public sealed class Parser
         
         if(left.Kind != SyntaxKind.OpenParenthesis)
         {
-            _diagnostics.ReportUnexpectedToken(Current.Span, left.Kind, SyntaxKind.OpenParenthesis);
+            Diagnostics.ReportUnexpectedToken(Current.Span, left.Kind, SyntaxKind.OpenParenthesis);
         }
         
         var expression = ParseExpression();
         var right = NextToken();
         if (right.Kind != SyntaxKind.CloseParenthesis)
         {
-            _diagnostics.ReportUnexpectedToken(Current.Span, right.Kind, SyntaxKind.CloseParenthesis);
+            Diagnostics.ReportUnexpectedToken(Current.Span, right.Kind, SyntaxKind.CloseParenthesis);
         }
 
         return new ParenthesizedExpressionSyntax(left, expression, right);
