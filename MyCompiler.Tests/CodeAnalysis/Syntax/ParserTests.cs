@@ -14,7 +14,7 @@ public class ParserTests
         var op1Text = SyntaxFacts.GetText(op1);
         var op2Text = SyntaxFacts.GetText(op2);
         var text = $"a {op1Text} b {op2Text} c";
-        var expression = SyntaxTree.Parse(text).Root;
+        var expression = ParseExpression(text);
         using var e = new AssertingEnumerator(expression);
 
         if (op1Precedence >= op2Precedence)
@@ -56,6 +56,12 @@ public class ParserTests
         
     }
 
+    private static ExpressionSyntax ParseExpression(string text)
+    {
+        var expression = SyntaxTree.Parse(text).Root.Expression;
+        return expression;
+    }
+
     [Theory]
     [MemberData(nameof(GetUnaryOperatorPairsData))]
     public void ParserUnaryExpressionHonorsPrecedences(SyntaxKind unaryKind, SyntaxKind binaryKind)
@@ -65,7 +71,8 @@ public class ParserTests
         var unaryText = SyntaxFacts.GetText(unaryKind);
         var binaryText = SyntaxFacts.GetText(binaryKind);
         var text = $"{unaryText} a {binaryText} b";
-        using var e = new AssertingEnumerator(SyntaxTree.Parse(text).Root);
+        var expression = ParseExpression(text);
+        using var e = new AssertingEnumerator(expression);
         
         if (unaryPrecedence >= binaryPrecedence)
         {

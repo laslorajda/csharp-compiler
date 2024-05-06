@@ -55,7 +55,19 @@ public sealed class DiagnosticBag : IEnumerable<Diagnostic>
 
     public void ReportUndefinedName(TextSpan span, string name)
     {
-        var message = $"Variable {name} does not exist";
+        var message = $"Variable {name} does not exist.";
+        Report(span, message);
+    }
+
+    public void ReportVariableAlreadyDeclared(TextSpan span, string name)
+    {
+        var message = $"Variable {name} is already declared.";
+        Report(span, message);
+    }
+
+    public void ReportCannotConvert(TextSpan span, Type? fromType, Type toType)
+    {
+        var message = $"Cannot convert type '{fromType}' to '{toType}'.";
         Report(span, message);
     }
 }

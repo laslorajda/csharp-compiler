@@ -6,6 +6,7 @@ using Compiler.CodeAnalysis.Text;
 var showTree = false;
 var variables = new Dictionary<VariableSymbol, object>();
 var textBuilder = new StringBuilder();
+Compilation? previous = null;
 
 while (true)
 {
@@ -40,6 +41,12 @@ while (true)
             Console.Clear();
             continue;
         }
+
+        if (input == "#reset")
+        {
+            previous = null;
+            continue;
+        }
     }
 
     textBuilder.AppendLine(input);
@@ -50,7 +57,7 @@ while (true)
     if (!isBlank && syntaxTree.Diagnostics.Any())
         continue;
 
-    var compilation = new Compilation(syntaxTree);
+    var compilation = previous == null ? new Compilation(syntaxTree) : previous.ContinueWith(syntaxTree);
     var result = compilation.Evaluate(variables);
 
     if (showTree)
@@ -65,6 +72,7 @@ while (true)
         Console.ForegroundColor = ConsoleColor.Magenta;
         Console.WriteLine(result.Value);
         Console.ResetColor();
+        previous = compilation;
     }
     else
     {
