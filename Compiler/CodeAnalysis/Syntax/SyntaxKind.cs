@@ -18,16 +18,22 @@ public enum SyntaxKind
     EqualsToken,
     EqualsEqualsToken,
     BangEqualsToken,
+    OpenParenthesisToken,
+    CloseParenthesisToken,
+    OpenBraceToken,
+    CloseBraceToken,
 
     // Expressions
     BinaryExpression,
     LiteralExpression,
-    OpenParenthesis,
-    CloseParenthesis,
     ParenthesizedExpression,
     UnaryExpression,
     NameExpression,
     AssignmentExpression,
+    
+    //Statements
+    BlockStatement,
+    ExpressionStatement,
 
     // Keywords
     FalseKeyword,

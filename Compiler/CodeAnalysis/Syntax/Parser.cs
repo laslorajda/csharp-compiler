@@ -1,10 +1,10 @@
+using System.Collections.Immutable;
 using Compiler.CodeAnalysis.Text;
 
 namespace Compiler.CodeAnalysis.Syntax;
 
 public sealed class Parser
 {
-    private readonly SourceText _text;
     private readonly SyntaxToken[] _tokens;
     private int _position;
 
@@ -12,7 +12,6 @@ public sealed class Parser
 
     public Parser(SourceText text)
     {
-        _text = text;
         var lexer = new Lexer(text);
         IList<SyntaxToken> tokens = [];
 
@@ -45,15 +44,51 @@ public sealed class Parser
         return current;
     }
     
+    private SyntaxToken MatchToken(SyntaxKind kind)
+    {
+        if (Current.Kind == kind)
+            return NextToken();
+
+        Diagnostics.ReportUnexpectedToken(Current.Span, Current.Kind, kind);
+        return new SyntaxToken(kind, Current.Position, string.Empty, -1);
+    }
+    
     public CompilationUnitSyntax ParseCompliationUnit()
     {
-        var expression = ParseExpression();
-        var endOfFileToken = NextToken();
-        if (endOfFileToken.Kind != SyntaxKind.EndOfFileToken)
+        var statement = ParseStatement();
+        var endOfFileToken = MatchToken(SyntaxKind.EndOfFileToken);
+        return new CompilationUnitSyntax(statement, endOfFileToken);
+    }
+    
+    private StatementSyntax ParseStatement()
+    {
+        if (Current.Kind == SyntaxKind.OpenBraceToken)
         {
-            Diagnostics.ReportUnexpectedToken(endOfFileToken.Span, endOfFileToken.Kind, SyntaxKind.EndOfFileToken);
+            return ParseBlockStatement();
         }
-        return new CompilationUnitSyntax(expression, endOfFileToken);
+        return ParseExpressionStatement();
+    }
+
+    private BlockStatementSyntax ParseBlockStatement()
+    {
+        var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
+
+        var openBraceToken = MatchToken(SyntaxKind.OpenBraceToken);
+
+        while (Current.Kind != SyntaxKind.EndOfFileToken && Current.Kind != SyntaxKind.CloseBraceToken)
+        {
+            var statement = ParseStatement();
+            statements.Add(statement);
+        }
+
+        var closeBraceToken = MatchToken(SyntaxKind.CloseBraceToken);
+        return new BlockStatementSyntax(openBraceToken, statements.ToImmutable(), closeBraceToken);
+    }
+
+    private ExpressionStatementSyntax ParseExpressionStatement()
+    {
+        var expression = ParseExpression();
+        return new ExpressionStatementSyntax(expression);
     }
 
     private ExpressionSyntax ParseExpression() => ParseAssignmentExpression();
@@ -109,7 +144,7 @@ public sealed class Parser
         {
             case SyntaxKind.NumberToken:
                 return new LiteralExpressionSyntax(NextToken());
-            case SyntaxKind.OpenParenthesis:
+            case SyntaxKind.OpenParenthesisToken:
             {
                 return ParseParenthesizedExpression();
             }
@@ -127,33 +162,23 @@ public sealed class Parser
 
     private ParenthesizedExpressionSyntax ParseParenthesizedExpression()
     {
-        var left = NextToken();
-        
-        if(left.Kind != SyntaxKind.OpenParenthesis)
-        {
-            Diagnostics.ReportUnexpectedToken(Current.Span, left.Kind, SyntaxKind.OpenParenthesis);
-        }
-        
+        var left = MatchToken(SyntaxKind.OpenParenthesisToken);
         var expression = ParseExpression();
-        var right = NextToken();
-        if (right.Kind != SyntaxKind.CloseParenthesis)
-        {
-            Diagnostics.ReportUnexpectedToken(Current.Span, right.Kind, SyntaxKind.CloseParenthesis);
-        }
+        var right = MatchToken(SyntaxKind.CloseParenthesisToken);
 
         return new ParenthesizedExpressionSyntax(left, expression, right);
     }
 
     private LiteralExpressionSyntax ParseBooleanLiteralExpression()
     {
-        var keyWordToken = NextToken();
-        var value = keyWordToken.Kind == SyntaxKind.TrueKeyword;
-        return new LiteralExpressionSyntax(keyWordToken, value);
+        var isTrue = Current.Kind == SyntaxKind.TrueKeyword;
+        var keywordToken = isTrue ? MatchToken(SyntaxKind.TrueKeyword) : MatchToken(SyntaxKind.FalseKeyword);
+        return new LiteralExpressionSyntax(keywordToken, isTrue);
     }
 
     private NameExpressionSyntax PraseNameExpression()
     {
-        var identifierToken = NextToken();
+        var identifierToken = MatchToken(SyntaxKind.IdentifierToken);
         return new NameExpressionSyntax(identifierToken);
     }
 }

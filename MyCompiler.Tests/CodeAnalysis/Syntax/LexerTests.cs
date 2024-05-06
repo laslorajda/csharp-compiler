@@ -143,8 +143,8 @@ public class LexerTests
             case SyntaxKind.BangEqualsToken:
             case SyntaxKind.BinaryExpression:
             case SyntaxKind.LiteralExpression:
-            case SyntaxKind.OpenParenthesis:
-            case SyntaxKind.CloseParenthesis:
+            case SyntaxKind.OpenParenthesisToken:
+            case SyntaxKind.CloseParenthesisToken:
             case SyntaxKind.ParenthesizedExpression:
             case SyntaxKind.UnaryExpression:
             case SyntaxKind.NameExpression:

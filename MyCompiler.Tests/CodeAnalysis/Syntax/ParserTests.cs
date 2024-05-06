@@ -1,4 +1,5 @@
 ﻿using Compiler.CodeAnalysis.Syntax;
+using FluentAssertions;
 
 namespace MyCompiler.Tests.CodeAnalysis.Syntax;
 
@@ -58,8 +59,9 @@ public class ParserTests
 
     private static ExpressionSyntax ParseExpression(string text)
     {
-        var expression = SyntaxTree.Parse(text).Root.Expression;
-        return expression;
+        var statement = SyntaxTree.Parse(text).Root.Statement;
+        statement.Should().BeOfType<ExpressionStatementSyntax>();
+        return ((ExpressionStatementSyntax)statement).Expression;
     }
 
     [Theory]

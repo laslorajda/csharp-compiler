@@ -5,10 +5,11 @@ namespace Compiler.CodeAnalysis;
 
 internal class Evaluator
 {
-    private readonly BoundExpression _root;
+    private readonly BoundStatement _root;
     private readonly Dictionary<VariableSymbol, object> _variables;
-
-    public Evaluator(BoundExpression root, Dictionary<VariableSymbol, object> variables)
+    private object _lastValue;
+    
+    public Evaluator(BoundStatement root, Dictionary<VariableSymbol, object> variables)
     {
         _root = root;
         _variables = variables;
@@ -16,7 +17,8 @@ internal class Evaluator
 
     public object Evaluate()
     {
-        return EvaluateExpression(_root);
+        EvaluateStatement(_root);
+        return _lastValue;
     }
 
     private object EvaluateExpression(BoundNode node)
@@ -35,32 +37,58 @@ internal class Evaluator
         }
     }
 
-    private static object EvaluateLiteralExpression(BoundLiteralExpression n)
+    private void EvaluateStatement(BoundStatement statement)
     {
-        return n.Value;
+        switch (statement.Kind)
+        {
+            case BoundNodeKind.BlockStatement:
+                EvaluateBlockStatement((BoundBlockStatement)statement);
+                break;
+            case BoundNodeKind.ExpressionStatement:
+                EvaluateExpressionStatement((BoundExpressionStatement)statement);
+                break;
+            default:
+                throw new Exception($"Unexpected statement {statement.Kind}");
+        }
     }
 
-    private object EvaluateVariableExpression(BoundVariableExpression v)
+    private void EvaluateBlockStatement(BoundBlockStatement node)
     {
-        return _variables[v.Variable];
+        foreach (var statement in node.Statements)
+        {
+            EvaluateStatement(statement);
+        }
     }
 
-    private object EvaluateAssignmentExpression(BoundAssignmentExpression a)
+    private void EvaluateExpressionStatement(BoundExpressionStatement node) =>
+        _lastValue = EvaluateExpression(node.Expression);
+
+    private static object EvaluateLiteralExpression(BoundLiteralExpression node)
     {
-        var value = EvaluateExpression(a.Expression);
-        _variables[a.Variable] = value;
+        return node.Value;
+    }
+
+    private object EvaluateVariableExpression(BoundVariableExpression node)
+    {
+        return _variables[node.Variable];
+    }
+
+    private object EvaluateAssignmentExpression(BoundAssignmentExpression node)
+    {
+        var value = EvaluateExpression(node.Expression);
+        _variables[node.Variable] = value;
         return value;
     }
 
-    private object EvaluateUnaryExpression(BoundUnaryExpression u)
+    private object EvaluateUnaryExpression(BoundUnaryExpression node)
     {
-        var operand = EvaluateExpression(u.Operand);
-        return u.Operator?.Kind switch
+        var operand = EvaluateExpression(node.Operand);
+        return node.Operator?.Kind switch
         {
             BoundUnaryOperatorKind.Identity => operand,
             BoundUnaryOperatorKind.Negation => -(int) operand,
             BoundUnaryOperatorKind.LogicalNegation => !(bool) operand,
-            _ => throw new Exception($"Unexpected unary operator {u.Operator}")
+            _ => throw new Exception($"Unexpected unary operator {node.Operator}")
         };
     }
 
