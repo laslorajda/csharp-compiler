@@ -51,6 +51,7 @@ public class EvaluatoinTests
     [InlineData("{ var a = 0 if a == 0 a = 5 else a = 15 a}", 5)]
     [InlineData("{ var a = 0 if a == 3 a = 5 else a = 15 a}", 15)]
     [InlineData("{ var a = 0 var b = 0 while a < 10 { b = a + b a = a + 1 } b}", 45)]
+    [InlineData("{ var result = 0 for i = 0 to 10 { result = result + i } result }", 55)]
     public void  EvaluationTests(string text, object expectedValue)
     {
         var syntaxTree = SyntaxTree.Parse(text);
@@ -117,12 +118,73 @@ public class EvaluatoinTests
     }
     
     [Fact]
-    public void EvaluatorAssignmentReportsCannotConvert()
+    public void EvaluatorIfStatementReportsCannotConvert()
+    {
+        const string text = """
+                   {
+                       var x = 10
+                       if [x]
+                           x = 0
+                   }
+                   """;
+        
+        const string diagnostics = """
+                                   
+                                   Cannot convert type 'System.Int32' to 'System.Boolean'.
+                                   
+                                   """;
+
+        AssertDiagnostics(text, diagnostics);
+    }
+    
+    [Fact]
+    public void EvaluatorWhileStatementReportsCannotConvert()
     {
         const string text = """
                             {
                                 var x = 10
-                                x = [true]
+                                while [10]
+                                    x = 0
+                            }
+                            """;
+        
+        const string diagnostics = """
+
+                                   Cannot convert type 'System.Int32' to 'System.Boolean'.
+
+                                   """;
+
+        AssertDiagnostics(text, diagnostics);
+    }
+    
+    [Fact]
+    public void EvaluatorForStatementReportsCannotConvertLowerBound()
+    {
+        const string text = """
+                            {
+                                var result = 0
+                                for i = [false] to 10
+                                    result = result + i
+                            }
+                            """;
+
+        const string diagnostics = """
+
+                                   Cannot convert type 'System.Boolean' to 'System.Int32'.
+
+                                   """;
+
+        AssertDiagnostics(text, diagnostics);
+    }
+    
+    [Fact]
+    public void EvaluatorForStatementReportsCannotConvertUpperBound()
+    {
+        const string text = """
+                            {
+                                var result = 0
+                                for i = 0 to [true]
+                                    result = result + i
                             }
                             """;
 

@@ -89,6 +89,7 @@ internal sealed class Binder
             SyntaxKind.VariableDeclarationStatement => BindVariableDeclarationStatement((VariableDeclarationStatementSyntax) syntax),
             SyntaxKind.IfStatement => BindIfStatement((IfStatementSyntax) syntax),
             SyntaxKind.WhileStatement => BindWhileStatement((WhileStatementSyntax) syntax),
+            SyntaxKind.ForStatement => BindForStatement((ForStatementSyntax) syntax),
             SyntaxKind.ExpressionStatement => BindExpressionStatement((ExpressionStatementSyntax) syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}")
         };
@@ -138,6 +139,27 @@ internal sealed class Binder
         var body = BindStatement(syntax.Body);
         
         return new BoundWhileStatement(contition, body);
+    }
+
+    private BoundForStatement BindForStatement(ForStatementSyntax syntax)
+    {
+        var lowerBound = BindExpression(syntax.LowerBound, typeof(int));
+        var upperBound = BindExpression(syntax.UpperBound, typeof(int));
+        
+        _scope = new BoundScope(_scope);
+        
+        var name = syntax.Identifier.Text;
+        var variable = new VariableSymbol(name, true, typeof(int));
+
+        if (!_scope.TryDeclare(variable))
+        {
+            Diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+        }
+        
+        var body = BindStatement(syntax.Body);
+
+        _scope = _scope.Parent!;
+        return new BoundForStatement(variable, lowerBound, upperBound, body);
     }
 
     private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)

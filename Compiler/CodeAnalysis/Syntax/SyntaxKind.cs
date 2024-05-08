@@ -41,6 +41,7 @@ public enum SyntaxKind
     VariableDeclarationStatement,
     IfStatement,
     WhileStatement,
+    ForStatement,
 
     // Keywords
     FalseKeyword,
@@ -50,8 +51,10 @@ public enum SyntaxKind
     IfKeyword,
     ElseKeyword,
     WhileKeyword,
-    
+    ForKeyword,    
+    ToKeyword,
+
     // Nodes
     CompliationUnit,
-    ElseClause
+    ElseClause,
 }
