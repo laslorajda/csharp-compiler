@@ -86,6 +86,23 @@ public class EvaluatoinTests
     }
 
     [Fact]
+    public void EvaluatorBlockStatementNoInifiteLoop()
+    {
+        const string text = """
+                            {
+                            [)][]
+                            """;
+
+        const string diagnostics = """
+
+                                   Unexpected token <CloseParenthesisToken>, expected <IdentifierToken>.
+                                   Unexpected token <EndOfFileToken>, expected <CloseBraceToken>.
+
+                                   """;
+        
+        AssertDiagnostics(text, diagnostics);
+    }
+    [Fact]
     public void EvalutaorNameReportsUndefined()
     {
         const string text = "[x] * 10";

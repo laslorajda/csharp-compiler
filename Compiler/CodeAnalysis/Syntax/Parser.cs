@@ -78,11 +78,20 @@ public sealed class Parser
         var statements = ImmutableArray.CreateBuilder<StatementSyntax>();
 
         var openBraceToken = MatchToken(SyntaxKind.OpenBraceToken);
-
+        
         while (Current.Kind != SyntaxKind.EndOfFileToken && Current.Kind != SyntaxKind.CloseBraceToken)
         {
+            var startToken = Current;
+
             var statement = ParseStatement();
             statements.Add(statement);
+
+            // Skip current token if ParseStatement() did not consume any tokens in order to avoid infinite loop
+            // No need to report an error here since it will be reported by ParseStatement()
+            if (Current == startToken)
+            {
+                NextToken();
+            }
         }
 
         var closeBraceToken = MatchToken(SyntaxKind.CloseBraceToken);
