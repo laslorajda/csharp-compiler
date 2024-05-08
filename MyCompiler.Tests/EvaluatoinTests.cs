@@ -50,6 +50,7 @@ public class EvaluatoinTests
     [InlineData("{ var a = 0 if a == 3 a = 5 a}", 0)]
     [InlineData("{ var a = 0 if a == 0 a = 5 else a = 15 a}", 5)]
     [InlineData("{ var a = 0 if a == 3 a = 5 else a = 15 a}", 15)]
+    [InlineData("{ var a = 0 var b = 0 while a < 10 { b = a + b a = a + 1 } b}", 45)]
     public void  EvaluationTests(string text, object expectedValue)
     {
         var syntaxTree = SyntaxTree.Parse(text);

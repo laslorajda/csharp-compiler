@@ -40,6 +40,7 @@ public enum SyntaxKind
     ExpressionStatement,
     VariableDeclarationStatement,
     IfStatement,
+    WhileStatement,
 
     // Keywords
     FalseKeyword,
@@ -48,6 +49,7 @@ public enum SyntaxKind
     VarKeyword,
     IfKeyword,
     ElseKeyword,
+    WhileKeyword,
     
     // Nodes
     CompliationUnit,

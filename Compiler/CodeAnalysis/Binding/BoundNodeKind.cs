@@ -13,5 +13,6 @@ internal enum BoundNodeKind
     BlockStatement,
     ExpressionStatement,
     VariableDeclarationStatement,
-    IfStatement
+    IfStatement,
+    WhileStatement
 }

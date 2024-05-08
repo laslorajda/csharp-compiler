@@ -88,6 +88,7 @@ internal sealed class Binder
             SyntaxKind.BlockStatement => BindBlockStatement((BlockStatementSyntax) syntax),
             SyntaxKind.VariableDeclarationStatement => BindVariableDeclarationStatement((VariableDeclarationStatementSyntax) syntax),
             SyntaxKind.IfStatement => BindIfStatement((IfStatementSyntax) syntax),
+            SyntaxKind.WhileStatement => BindWhileStatement((WhileStatementSyntax) syntax),
             SyntaxKind.ExpressionStatement => BindExpressionStatement((ExpressionStatementSyntax) syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}")
         };
@@ -122,13 +123,21 @@ internal sealed class Binder
         return new BoundVariableDeclarationStatement(variable, initializer);
     }
 
-    private BoundStatement BindIfStatement(IfStatementSyntax syntax)
+    private BoundIfStatement BindIfStatement(IfStatementSyntax syntax)
     {
         var contition = BindExpression(syntax.Condition, typeof(bool));
         var thenStatement = BindStatement(syntax.ThenStatement);
         var elseStatement = syntax.ElseClause == null ? null : BindStatement(syntax.ElseClause.ElseStatement);
         
         return new BoundIfStatement(contition, thenStatement, elseStatement);
+    }
+
+    private BoundWhileStatement BindWhileStatement(WhileStatementSyntax syntax)
+    {
+        var contition = BindExpression(syntax.Condition, typeof(bool));
+        var body = BindStatement(syntax.Body);
+        
+        return new BoundWhileStatement(contition, body);
     }
 
     private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)

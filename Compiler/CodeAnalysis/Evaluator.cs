@@ -1,5 +1,4 @@
 using Compiler.CodeAnalysis.Binding;
-using Compiler.CodeAnalysis.Syntax;
 
 namespace Compiler.CodeAnalysis;
 
@@ -50,6 +49,9 @@ internal class Evaluator
             case BoundNodeKind.IfStatement:
                 EvaluateIfStatement((BoundIfStatement)statement);
                 break;
+            case BoundNodeKind.WhileStatement:
+                EvaluateWhileStatement((BoundWhileStatement)statement);
+                break;
             case BoundNodeKind.ExpressionStatement:
                 EvaluateExpressionStatement((BoundExpressionStatement)statement);
                 break;
@@ -71,16 +73,26 @@ internal class Evaluator
         }
     }
 
-    private void EvaluateIfStatement(BoundIfStatement statement)
+    private void EvaluateIfStatement(BoundIfStatement node)
     {
-        var condition = (bool)EvaluateExpression(statement.Condition);
+        var condition = (bool)EvaluateExpression(node.Condition);
         if (condition)
         {
-            EvaluateStatement(statement.ThenStatement);
+            EvaluateStatement(node.ThenStatement);
         }
-        else if (statement.ElseStatement != null)
+        else if (node.ElseStatement != null)
         {
-            EvaluateStatement(statement.ElseStatement);
+            EvaluateStatement(node.ElseStatement);
+        }
+    }
+
+    private void EvaluateWhileStatement(BoundWhileStatement node)
+    {
+        var condition = (bool)EvaluateExpression(node.Condition);
+        while (condition)
+        {
+            EvaluateStatement(node.Body);
+            condition = (bool)EvaluateExpression(node.Condition);
         }
     }
 
