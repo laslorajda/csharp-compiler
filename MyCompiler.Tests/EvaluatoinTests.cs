@@ -198,6 +198,30 @@ public class EvaluatoinTests
     }
 
     [Fact]
+    public void EvaluatorNameExpressionReportsUndefined()
+    {
+        const string text = "[x]";
+
+        const string diagnostics = """
+
+                                   Variable 'x' does not exist.
+
+                                   """;
+
+        AssertDiagnostics(text, diagnostics);
+    }
+    
+    [Fact]
+    public void EvaluatorNameExpressionReportsNoErrorForInsertedToken()
+    {
+        const string text = "[]";
+        
+        const string diagnostics = "Unexpected token <EndOfFileToken>, expected <IdentifierToken>.";
+
+        AssertDiagnostics(text, diagnostics);
+    }
+    
+    [Fact]
     public void EvalatorUnaryReportUndefinedOperator()
     {
         const string text = "[+]true";
