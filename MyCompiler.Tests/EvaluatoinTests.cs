@@ -46,6 +46,10 @@ public class EvaluatoinTests
     [InlineData("!false", true)]
     [InlineData("!!true", true)]
     [InlineData("{ var a = 0 (a = 5) * a}", 25)]
+    [InlineData("{ var a = 0 if a == 0 a = 5 a}", 5)]
+    [InlineData("{ var a = 0 if a == 3 a = 5 a}", 0)]
+    [InlineData("{ var a = 0 if a == 0 a = 5 else a = 15 a}", 5)]
+    [InlineData("{ var a = 0 if a == 3 a = 5 else a = 15 a}", 15)]
     public void  EvaluationTests(string text, object expectedValue)
     {
         var syntaxTree = SyntaxTree.Parse(text);

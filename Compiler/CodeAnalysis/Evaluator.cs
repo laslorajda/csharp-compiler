@@ -47,9 +47,17 @@ internal class Evaluator
             case BoundNodeKind.VariableDeclarationStatement:
                 EvaludateVariableDeclarationStatement((BoundVariableDeclarationStatement)statement);
                 break;
+            case BoundNodeKind.IfStatement:
+                EvaluateIfStatement((BoundIfStatement)statement);
+                break;
             case BoundNodeKind.ExpressionStatement:
                 EvaluateExpressionStatement((BoundExpressionStatement)statement);
                 break;
+            case BoundNodeKind.UnaryExpression:
+            case BoundNodeKind.LiteralExpression:
+            case BoundNodeKind.BinaryExpression:
+            case BoundNodeKind.VariableExpression:
+            case BoundNodeKind.AssignmentExpression:
             default:
                 throw new Exception($"Unexpected statement {statement.Kind}");
         }
@@ -60,6 +68,19 @@ internal class Evaluator
         foreach (var statement in node.Statements)
         {
             EvaluateStatement(statement);
+        }
+    }
+
+    private void EvaluateIfStatement(BoundIfStatement statement)
+    {
+        var condition = (bool)EvaluateExpression(statement.Condition);
+        if (condition)
+        {
+            EvaluateStatement(statement.ThenStatement);
+        }
+        else if (statement.ElseStatement != null)
+        {
+            EvaluateStatement(statement.ElseStatement);
         }
     }
 

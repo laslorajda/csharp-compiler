@@ -39,13 +39,17 @@ public enum SyntaxKind
     BlockStatement,
     ExpressionStatement,
     VariableDeclarationStatement,
+    IfStatement,
 
     // Keywords
     FalseKeyword,
     TrueKeyword,
     LetKeyword,
     VarKeyword,
+    IfKeyword,
+    ElseKeyword,
     
     // Nodes
-    CompliationUnit
+    CompliationUnit,
+    ElseClause
 }

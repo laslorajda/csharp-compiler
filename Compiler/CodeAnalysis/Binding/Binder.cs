@@ -70,13 +70,25 @@ internal sealed class Binder
         };
     }
 
+    private BoundExpression BindExpression(ExpressionSyntax syntax, Type targetType)
+    {
+        var result = BindExpression(syntax);
+        if (result.Type != targetType)
+        {
+            Diagnostics.ReportCannotConvert(syntax.Span, result.Type, targetType);
+        }
+
+        return result;
+    }
+
     private BoundStatement BindStatement(StatementSyntax syntax)
     {
         return syntax.Kind switch
         {
             SyntaxKind.BlockStatement => BindBlockStatement((BlockStatementSyntax) syntax),
-            SyntaxKind.ExpressionStatement => BindExpressionStatement((ExpressionStatementSyntax) syntax),
             SyntaxKind.VariableDeclarationStatement => BindVariableDeclarationStatement((VariableDeclarationStatementSyntax) syntax),
+            SyntaxKind.IfStatement => BindIfStatement((IfStatementSyntax) syntax),
+            SyntaxKind.ExpressionStatement => BindExpressionStatement((ExpressionStatementSyntax) syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}")
         };
     }
@@ -95,12 +107,7 @@ internal sealed class Binder
         return new BoundBlockStatement(statements.ToImmutable());
     }
 
-    private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
-    {
-        return new BoundExpressionStatement(BindExpression(syntax.Expression));
-    }
-
-    private BoundStatement BindVariableDeclarationStatement(VariableDeclarationStatementSyntax syntax)
+    private BoundVariableDeclarationStatement BindVariableDeclarationStatement(VariableDeclarationStatementSyntax syntax)
     {
         var name = syntax.Identifier.Text;
         var isReadOnly = syntax.Keyword.Kind == SyntaxKind.LetKeyword;
@@ -113,6 +120,20 @@ internal sealed class Binder
         }
 
         return new BoundVariableDeclarationStatement(variable, initializer);
+    }
+
+    private BoundStatement BindIfStatement(IfStatementSyntax syntax)
+    {
+        var contition = BindExpression(syntax.Condition, typeof(bool));
+        var thenStatement = BindStatement(syntax.ThenStatement);
+        var elseStatement = syntax.ElseClause == null ? null : BindStatement(syntax.ElseClause.ElseStatement);
+        
+        return new BoundIfStatement(contition, thenStatement, elseStatement);
+    }
+
+    private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
+    {
+        return new BoundExpressionStatement(BindExpression(syntax.Expression));
     }
 
     private static BoundLiteralExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
