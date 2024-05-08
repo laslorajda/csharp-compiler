@@ -20,7 +20,7 @@ public sealed class DiagnosticBag : IEnumerable<Diagnostic>
 
     public void ReportInvalidNumber(TextSpan textSpan, string text, Type type)
     {
-        var message = $"The number ${text} isn't a valid ${type}.";
+        var message = $"The number '${text}' isn't a valid '${type}'.";
         Report(textSpan, message);
     }
 
@@ -55,13 +55,13 @@ public sealed class DiagnosticBag : IEnumerable<Diagnostic>
 
     public void ReportUndefinedName(TextSpan span, string name)
     {
-        var message = $"Variable {name} does not exist.";
+        var message = $"Variable '{name}' does not exist.";
         Report(span, message);
     }
 
     public void ReportVariableAlreadyDeclared(TextSpan span, string name)
     {
-        var message = $"Variable {name} is already declared.";
+        var message = $"Variable '{name}' is already declared.";
         Report(span, message);
     }
 

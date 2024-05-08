@@ -48,4 +48,132 @@ public class EvaluatoinTests
         result.Diagnostics.Should().BeEmpty();
         result.Value.Should().Be(expectedValue);
     }
+
+    [Fact]
+    public void EvaluatorVariableDecalarationReportsRedeclaration()
+    {
+        const string text = """
+                            {
+                                var x = 10
+                                var y = 100
+                                {
+                                    var x = 10
+                                }
+                                var [x] = 5
+                            }
+                            """;
+
+        const string diagnostics = """
+
+                                   Variable 'x' is already declared.
+                                   """;
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void EvalutaorNameReportsUndefined()
+    {
+        const string text = "[x] * 10";
+
+        const string diagnostics = """
+
+                                   Variable 'x' does not exist.
+                                   """;
+
+        AssertDiagnostics(text, diagnostics);
+    }
+    
+    [Fact]
+    public void EvaluatorAssignedReportsCannotAssign()
+    {
+        const string text = """
+                            {
+                                let x = 10
+                                x [=] 0
+                            }
+                            """;
+
+        const string diagnostics = """
+                                   
+                                   Variable 'x' is read-only and cannot be assigned to.
+                                   
+                                   """;
+
+        AssertDiagnostics(text, diagnostics);
+    }
+    
+    [Fact]
+    public void EvaluatorAssignmentReportsCannotConvert()
+    {
+        const string text = """
+                            {
+                                var x = 10
+                                x = [true]
+                            }
+                            """;
+
+        const string diagnostics = """
+                                   
+                                   Cannot convert type 'System.Boolean' to 'System.Int32'.
+                                   
+                                   """;
+
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    [Fact]
+    public void EvalatorUnaryReportUndefinedOperator()
+    {
+        const string text = "[+]true";
+        
+        const string diagnostics = """
+                                   
+                                   Unary operator '+' is not defined for type 'System.Boolean'.
+                                   
+                                   """;
+
+        AssertDiagnostics(text, diagnostics);
+    }
+    
+    [Fact]
+    public void EvalatorBinaryReportUndefinedOperator()
+    {
+        const string text = "true [+] false";
+
+        const string diagnostics = """
+
+                                   Binary operator '+' is not defined for types 'System.Boolean' and 'System.Boolean'.
+
+                                   """;
+            
+        AssertDiagnostics(text, diagnostics);
+    }
+
+    private static void AssertDiagnostics(string text, string diagnosticText)
+    {
+        var annotatedText = AnnotatedText.Parse(text);
+        var syntaxTree = SyntaxTree.Parse(annotatedText.Text);
+        var compliation = new Compilation(syntaxTree);
+        var result = compliation.Evaluate(new Dictionary<VariableSymbol, object>());
+        var expectedDiagnostics = AnnotatedText.UnindentLines(diagnosticText);
+
+        if (annotatedText.Spans.Length != expectedDiagnostics.Count)
+        {
+            throw new Exception("Must mark as many spans as there are expected diagnostics");
+        }
+
+        result.Diagnostics.Length.Should().Be(expectedDiagnostics.Count);
+
+        for (var i = 0; i < expectedDiagnostics.Count; i++)
+        {
+            var expectedMessage = expectedDiagnostics[i];
+            var actualMessage = result.Diagnostics[i].Message;
+            var expectedSpan = annotatedText.Spans[i];
+            var actualSpan = result.Diagnostics[i].Span;
+            
+            actualMessage.Should().Be(expectedMessage);
+            actualSpan.Should().Be(expectedSpan);
+        }
+    }
 }
