@@ -2,12 +2,16 @@
 
 internal enum BoundBinaryOperatorKind
 {
-    Addition = 0,
-    Subtraction = 1,
-    Multiplication = 2,
-    Division = 3,
+    Addition,
+    Subtraction,
+    Multiplication,
+    Division,
     LogicalAnd,
     LogicalOr,
     Equals,
-    NotEquals
+    NotEquals,
+    Less,
+    LessOrEquals,
+    Greater,
+    GreaterOrEquals
 }

@@ -18,6 +18,10 @@ public enum SyntaxKind
     EqualsToken,
     EqualsEqualsToken,
     BangEqualsToken,
+    LessToken,
+    LessOrEqualsToken,
+    GreaterToken,
+    GreaterOrEqualsToken,
     OpenParenthesisToken,
     CloseParenthesisToken,
     OpenBraceToken,
@@ -35,13 +39,22 @@ public enum SyntaxKind
     BlockStatement,
     ExpressionStatement,
     VariableDeclarationStatement,
+    IfStatement,
+    WhileStatement,
+    ForStatement,
 
     // Keywords
     FalseKeyword,
     TrueKeyword,
     LetKeyword,
     VarKeyword,
-    
+    IfKeyword,
+    ElseKeyword,
+    WhileKeyword,
+    ForKeyword,    
+    ToKeyword,
+
     // Nodes
-    CompliationUnit
+    CompliationUnit,
+    ElseClause,
 }

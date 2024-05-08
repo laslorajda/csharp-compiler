@@ -130,6 +130,10 @@ public class LexerTests
             case SyntaxKind.BangToken when t2Kind is SyntaxKind.EqualsToken or SyntaxKind.EqualsEqualsToken:
             case SyntaxKind.EqualsToken when t2Kind is SyntaxKind.EqualsToken or SyntaxKind.EqualsEqualsToken:
                 return true;
+            case SyntaxKind.LessToken when t2Kind is SyntaxKind.EqualsToken or SyntaxKind.EqualsEqualsToken:
+                return true;
+            case SyntaxKind.GreaterToken when t2Kind is SyntaxKind.EqualsToken or SyntaxKind.EqualsEqualsToken:
+                return true;
             case SyntaxKind.BadResultToken:
             case SyntaxKind.EndOfFileToken:
             case SyntaxKind.WhitespaceToken:

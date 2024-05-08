@@ -11,7 +11,6 @@ public sealed class Compilation
     public SyntaxTree SyntaxTree { get; }
     public Compilation(SyntaxTree syntaxTree) : this(null, syntaxTree)
     {
-        SyntaxTree = syntaxTree;
     }
     
     private Compilation(Compilation? previous, SyntaxTree syntaxTree)
@@ -50,6 +49,6 @@ public sealed class Compilation
         var evaluator = new Evaluator(GlobalScope.Statement, variables);
         var value = evaluator.Evaluate();
 
-        return new EvaluationResult(Array.Empty<Diagnostic>(), value);
+        return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
     }
 }

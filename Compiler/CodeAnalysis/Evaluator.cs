@@ -1,5 +1,4 @@
 using Compiler.CodeAnalysis.Binding;
-using Compiler.CodeAnalysis.Syntax;
 
 namespace Compiler.CodeAnalysis;
 
@@ -47,9 +46,23 @@ internal class Evaluator
             case BoundNodeKind.VariableDeclarationStatement:
                 EvaludateVariableDeclarationStatement((BoundVariableDeclarationStatement)statement);
                 break;
+            case BoundNodeKind.IfStatement:
+                EvaluateIfStatement((BoundIfStatement)statement);
+                break;
+            case BoundNodeKind.WhileStatement:
+                EvaluateWhileStatement((BoundWhileStatement)statement);
+                break;
+            case BoundNodeKind.ForStatement:
+                EvaluateForStatement((BoundForStatement)statement);
+                break;
             case BoundNodeKind.ExpressionStatement:
                 EvaluateExpressionStatement((BoundExpressionStatement)statement);
                 break;
+            case BoundNodeKind.UnaryExpression:
+            case BoundNodeKind.LiteralExpression:
+            case BoundNodeKind.BinaryExpression:
+            case BoundNodeKind.VariableExpression:
+            case BoundNodeKind.AssignmentExpression:
             default:
                 throw new Exception($"Unexpected statement {statement.Kind}");
         }
@@ -60,6 +73,41 @@ internal class Evaluator
         foreach (var statement in node.Statements)
         {
             EvaluateStatement(statement);
+        }
+    }
+
+    private void EvaluateIfStatement(BoundIfStatement node)
+    {
+        var condition = (bool)EvaluateExpression(node.Condition);
+        if (condition)
+        {
+            EvaluateStatement(node.ThenStatement);
+        }
+        else if (node.ElseStatement != null)
+        {
+            EvaluateStatement(node.ElseStatement);
+        }
+    }
+
+    private void EvaluateWhileStatement(BoundWhileStatement node)
+    {
+        var condition = (bool)EvaluateExpression(node.Condition);
+        while (condition)
+        {
+            EvaluateStatement(node.Body);
+            condition = (bool)EvaluateExpression(node.Condition);
+        }
+    }
+
+    private void EvaluateForStatement(BoundForStatement node)
+    {
+        var lowerBound = (int)EvaluateExpression(node.LowerBound);
+        var upperBound = (int)EvaluateExpression(node.UpperBound);
+        
+        for(var i = lowerBound; i <= upperBound; i++)
+        {
+            _variables[node.Variable] = i;
+            EvaluateStatement(node.Body);
         }
     }
 
@@ -117,6 +165,10 @@ internal class Evaluator
             BoundBinaryOperatorKind.LogicalOr => (bool) left || (bool) right,
             BoundBinaryOperatorKind.Equals => Equals(left, right),
             BoundBinaryOperatorKind.NotEquals => !Equals(left, right),
+            BoundBinaryOperatorKind.Less => (int)left < (int)right,
+            BoundBinaryOperatorKind.LessOrEquals => (int)left <= (int) right,
+            BoundBinaryOperatorKind.Greater => (int)left > (int) right,
+            BoundBinaryOperatorKind.GreaterOrEquals => (int)left >= (int) right,
             _ => throw new Exception($"Unexpected binary operator {b.Operator}")
         };
     }

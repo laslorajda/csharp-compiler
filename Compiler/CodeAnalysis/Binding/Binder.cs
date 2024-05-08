@@ -70,13 +70,27 @@ internal sealed class Binder
         };
     }
 
+    private BoundExpression BindExpression(ExpressionSyntax syntax, Type targetType)
+    {
+        var result = BindExpression(syntax);
+        if (result.Type != targetType)
+        {
+            Diagnostics.ReportCannotConvert(syntax.Span, result.Type, targetType);
+        }
+
+        return result;
+    }
+
     private BoundStatement BindStatement(StatementSyntax syntax)
     {
         return syntax.Kind switch
         {
             SyntaxKind.BlockStatement => BindBlockStatement((BlockStatementSyntax) syntax),
-            SyntaxKind.ExpressionStatement => BindExpressionStatement((ExpressionStatementSyntax) syntax),
             SyntaxKind.VariableDeclarationStatement => BindVariableDeclarationStatement((VariableDeclarationStatementSyntax) syntax),
+            SyntaxKind.IfStatement => BindIfStatement((IfStatementSyntax) syntax),
+            SyntaxKind.WhileStatement => BindWhileStatement((WhileStatementSyntax) syntax),
+            SyntaxKind.ForStatement => BindForStatement((ForStatementSyntax) syntax),
+            SyntaxKind.ExpressionStatement => BindExpressionStatement((ExpressionStatementSyntax) syntax),
             _ => throw new Exception($"Unexpected syntax {syntax.Kind}")
         };
     }
@@ -95,12 +109,7 @@ internal sealed class Binder
         return new BoundBlockStatement(statements.ToImmutable());
     }
 
-    private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
-    {
-        return new BoundExpressionStatement(BindExpression(syntax.Expression));
-    }
-
-    private BoundStatement BindVariableDeclarationStatement(VariableDeclarationStatementSyntax syntax)
+    private BoundVariableDeclarationStatement BindVariableDeclarationStatement(VariableDeclarationStatementSyntax syntax)
     {
         var name = syntax.Identifier.Text;
         var isReadOnly = syntax.Keyword.Kind == SyntaxKind.LetKeyword;
@@ -113,6 +122,49 @@ internal sealed class Binder
         }
 
         return new BoundVariableDeclarationStatement(variable, initializer);
+    }
+
+    private BoundIfStatement BindIfStatement(IfStatementSyntax syntax)
+    {
+        var contition = BindExpression(syntax.Condition, typeof(bool));
+        var thenStatement = BindStatement(syntax.ThenStatement);
+        var elseStatement = syntax.ElseClause == null ? null : BindStatement(syntax.ElseClause.ElseStatement);
+        
+        return new BoundIfStatement(contition, thenStatement, elseStatement);
+    }
+
+    private BoundWhileStatement BindWhileStatement(WhileStatementSyntax syntax)
+    {
+        var contition = BindExpression(syntax.Condition, typeof(bool));
+        var body = BindStatement(syntax.Body);
+        
+        return new BoundWhileStatement(contition, body);
+    }
+
+    private BoundForStatement BindForStatement(ForStatementSyntax syntax)
+    {
+        var lowerBound = BindExpression(syntax.LowerBound, typeof(int));
+        var upperBound = BindExpression(syntax.UpperBound, typeof(int));
+        
+        _scope = new BoundScope(_scope);
+        
+        var name = syntax.Identifier.Text;
+        var variable = new VariableSymbol(name, true, typeof(int));
+
+        if (!_scope.TryDeclare(variable))
+        {
+            Diagnostics.ReportVariableAlreadyDeclared(syntax.Identifier.Span, name);
+        }
+        
+        var body = BindStatement(syntax.Body);
+
+        _scope = _scope.Parent!;
+        return new BoundForStatement(variable, lowerBound, upperBound, body);
+    }
+
+    private BoundExpressionStatement BindExpressionStatement(ExpressionStatementSyntax syntax)
+    {
+        return new BoundExpressionStatement(BindExpression(syntax.Expression));
     }
 
     private static BoundLiteralExpression BindLiteralExpression(LiteralExpressionSyntax syntax)
@@ -155,6 +207,14 @@ internal sealed class Binder
     private BoundExpression BindNameExpression(NameExpressionSyntax syntax)
     {
         var name = syntax.IdentifierToken.Text;
+
+        if (string.IsNullOrEmpty(name))
+        {
+            // This means the token was inserted by the parser. 
+            // We already report an error for that token so we can just return an error expression.
+            return new BoundLiteralExpression(0);
+        }
+        
         _scope.TryLookup(name, out var variable);
         
         if (variable != null)
