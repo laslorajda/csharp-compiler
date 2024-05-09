@@ -28,13 +28,13 @@ internal abstract class BoundTreeRewriter
             _ => throw new Exception("Unexpected node: " + node.Kind)
         };
 
-    protected virtual BoundBlockStatement RewriteBlockStatement(BoundBlockStatement node)
+    protected virtual BoundStatement RewriteBlockStatement(BoundBlockStatement node)
     {
         var statements = node.Statements.Select(RewriteStatement).ToImmutableArray();
         return statements.SequenceEqual(node.Statements) ? node : new BoundBlockStatement(statements);
     }
 
-    protected virtual BoundVariableDeclarationStatement RewriteVariableDeclarationStatement(BoundVariableDeclarationStatement node)
+    protected virtual BoundStatement RewriteVariableDeclarationStatement(BoundVariableDeclarationStatement node)
     {
         var initializer = RewriteExpression(node.Initializer);
         return initializer == node.Initializer
@@ -42,7 +42,7 @@ internal abstract class BoundTreeRewriter
             : new BoundVariableDeclarationStatement(node.Variable, initializer);
     }
 
-    protected virtual BoundIfStatement RewriteIfStatement(BoundIfStatement node)
+    protected virtual BoundStatement RewriteIfStatement(BoundIfStatement node)
     { 
         var condition = RewriteExpression(node.Condition);
         var thenStatement = RewriteStatement(node.ThenStatement);
@@ -53,7 +53,7 @@ internal abstract class BoundTreeRewriter
             : new BoundIfStatement(condition, thenStatement, elseStatement);
     }
 
-    protected virtual BoundWhileStatement RewriteWhileStatement(BoundWhileStatement node)
+    protected virtual BoundStatement RewriteWhileStatement(BoundWhileStatement node)
     {
         var condition = RewriteExpression(node.Condition);
         var body = RewriteStatement(node.Body);
@@ -63,7 +63,7 @@ internal abstract class BoundTreeRewriter
             : new BoundWhileStatement(condition, body);
     }
 
-    protected virtual BoundForStatement RewriteForStatement(BoundForStatement node)
+    protected virtual BoundStatement RewriteForStatement(BoundForStatement node)
     {
         var lowerBound = RewriteExpression(node.LowerBound);
         var upperBound = RewriteExpression(node.UpperBound);
@@ -74,29 +74,29 @@ internal abstract class BoundTreeRewriter
             : new BoundForStatement(node.Variable, lowerBound, upperBound, body); 
     }
 
-    protected virtual BoundExpressionStatement RewriteExpressionStatement(BoundExpressionStatement node)
+    protected virtual BoundStatement RewriteExpressionStatement(BoundExpressionStatement node)
     {
         var expression = RewriteExpression(node.Expression);
         return expression == node.Expression ? node : new BoundExpressionStatement(expression);
     }
 
-    protected virtual BoundLiteralExpression RewriteLiteralExpression(BoundLiteralExpression node) => node;
+    protected virtual BoundExpression RewriteLiteralExpression(BoundLiteralExpression node) => node;
 
-    protected virtual BoundVariableExpression RewriteVariableExpression(BoundVariableExpression node) => node;
+    protected virtual BoundExpression RewriteVariableExpression(BoundVariableExpression node) => node;
 
-    protected virtual BoundAssignmentExpression RewriteAssignmentExpression(BoundAssignmentExpression node)
+    protected virtual BoundExpression RewriteAssignmentExpression(BoundAssignmentExpression node)
     {
         var expression = RewriteExpression(node.Expression);
         return expression == node.Expression ? node : new BoundAssignmentExpression(node.Variable, expression);
     }
 
-    protected virtual BoundUnaryExpression RewriteUnaryExpression(BoundUnaryExpression node)
+    protected virtual BoundExpression RewriteUnaryExpression(BoundUnaryExpression node)
     {
         var operand = RewriteExpression(node.Operand);
         return operand == node.Operand ? node : new BoundUnaryExpression(node.Operator, operand);
     }
 
-    protected virtual BoundBinaryExpression RewriteBinaryExpression(BoundBinaryExpression node)
+    protected virtual BoundExpression RewriteBinaryExpression(BoundBinaryExpression node)
     {
         var left = RewriteExpression(node.Left);
         var right = RewriteExpression(node.Right);

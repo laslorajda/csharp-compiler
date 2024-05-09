@@ -52,17 +52,9 @@ internal class Evaluator
             case BoundNodeKind.WhileStatement:
                 EvaluateWhileStatement((BoundWhileStatement)statement);
                 break;
-            case BoundNodeKind.ForStatement:
-                EvaluateForStatement((BoundForStatement)statement);
-                break;
             case BoundNodeKind.ExpressionStatement:
                 EvaluateExpressionStatement((BoundExpressionStatement)statement);
                 break;
-            case BoundNodeKind.UnaryExpression:
-            case BoundNodeKind.LiteralExpression:
-            case BoundNodeKind.BinaryExpression:
-            case BoundNodeKind.VariableExpression:
-            case BoundNodeKind.AssignmentExpression:
             default:
                 throw new Exception($"Unexpected statement {statement.Kind}");
         }
@@ -96,18 +88,6 @@ internal class Evaluator
         {
             EvaluateStatement(node.Body);
             condition = (bool)EvaluateExpression(node.Condition);
-        }
-    }
-
-    private void EvaluateForStatement(BoundForStatement node)
-    {
-        var lowerBound = (int)EvaluateExpression(node.LowerBound);
-        var upperBound = (int)EvaluateExpression(node.UpperBound);
-        
-        for(var i = lowerBound; i <= upperBound; i++)
-        {
-            _variables[node.Variable] = i;
-            EvaluateStatement(node.Body);
         }
     }
 
