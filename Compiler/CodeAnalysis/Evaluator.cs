@@ -146,6 +146,7 @@ internal class Evaluator
             BoundUnaryOperatorKind.Identity => operand,
             BoundUnaryOperatorKind.Negation => -(int) operand,
             BoundUnaryOperatorKind.LogicalNegation => !(bool) operand,
+            BoundUnaryOperatorKind.OnesComplement => ~(int) operand,
             _ => throw new Exception($"Unexpected unary operator {node.Operator}")
         };
     }
@@ -157,18 +158,27 @@ internal class Evaluator
 
         return b.Operator?.Kind switch
         {
-            BoundBinaryOperatorKind.Addition => (int) left + (int) right,
-            BoundBinaryOperatorKind.Subtraction => (int) left - (int) right,
-            BoundBinaryOperatorKind.Multiplication => (int) left * (int) right,
-            BoundBinaryOperatorKind.Division => (int) left / (int) right,
-            BoundBinaryOperatorKind.LogicalAnd => (bool) left && (bool) right,
-            BoundBinaryOperatorKind.LogicalOr => (bool) left || (bool) right,
+            BoundBinaryOperatorKind.Addition => (int)left + (int)right,
+            BoundBinaryOperatorKind.Subtraction => (int)left - (int)right,
+            BoundBinaryOperatorKind.Multiplication => (int)left * (int)right,
+            BoundBinaryOperatorKind.Division => (int)left / (int)right,
+            BoundBinaryOperatorKind.BitwiseAnd => b.Type == typeof(int)
+                ? (int)left & (int)right
+                : (bool)left & (bool)right,
+            BoundBinaryOperatorKind.BitwiseOr => b.Type == typeof(int)
+                ? (int)left | (int)right
+                : (bool)left | (bool)right,
+            BoundBinaryOperatorKind.BitwiseXor => b.Type == typeof(int)
+                ? (int)left ^ (int)right
+                : (bool)left ^ (bool)right,
+            BoundBinaryOperatorKind.LogicalAnd => (bool)left && (bool)right,
+            BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
             BoundBinaryOperatorKind.Equals => Equals(left, right),
             BoundBinaryOperatorKind.NotEquals => !Equals(left, right),
             BoundBinaryOperatorKind.Less => (int)left < (int)right,
-            BoundBinaryOperatorKind.LessOrEquals => (int)left <= (int) right,
-            BoundBinaryOperatorKind.Greater => (int)left > (int) right,
-            BoundBinaryOperatorKind.GreaterOrEquals => (int)left >= (int) right,
+            BoundBinaryOperatorKind.LessOrEquals => (int)left <= (int)right,
+            BoundBinaryOperatorKind.Greater => (int)left > (int)right,
+            BoundBinaryOperatorKind.GreaterOrEquals => (int)left >= (int)right,
             _ => throw new Exception($"Unexpected binary operator {b.Operator}")
         };
     }

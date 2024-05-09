@@ -26,6 +26,10 @@ public enum SyntaxKind
     CloseParenthesisToken,
     OpenBraceToken,
     CloseBraceToken,
+    TildeToken,
+    PipeToken,
+    AmpersandToken,
+    HatToken,
 
     // Expressions
     BinaryExpression,

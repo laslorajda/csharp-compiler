@@ -134,6 +134,10 @@ public class LexerTests
                 return true;
             case SyntaxKind.GreaterToken when t2Kind is SyntaxKind.EqualsToken or SyntaxKind.EqualsEqualsToken:
                 return true;
+            case SyntaxKind.AmpersandToken when t2Kind is SyntaxKind.AmpersandToken or SyntaxKind.AmpersandAmpersandToken:
+                return true;
+            case SyntaxKind.PipeToken when t2Kind is SyntaxKind.PipeToken or SyntaxKind.PipePipeToken:
+                return true;
             case SyntaxKind.BadResultToken:
             case SyntaxKind.EndOfFileToken:
             case SyntaxKind.WhitespaceToken:

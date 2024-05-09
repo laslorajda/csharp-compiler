@@ -9,15 +9,15 @@ public static class SyntaxFacts
             SyntaxKind.PlusToken or SyntaxKind.MinusToken => 4,
             SyntaxKind.EqualsEqualsToken or SyntaxKind.BangEqualsToken or SyntaxKind.LessToken
                 or SyntaxKind.LessOrEqualsToken or SyntaxKind.GreaterToken or SyntaxKind.GreaterOrEqualsToken => 3,
-            SyntaxKind.AmpersandAmpersandToken => 2,
-            SyntaxKind.PipePipeToken => 1,
+            SyntaxKind.AmpersandAmpersandToken or SyntaxKind.AmpersandToken => 2,
+            SyntaxKind.PipePipeToken or SyntaxKind.PipeToken  or SyntaxKind.HatToken => 1,
             _ => 0
         };
     
     internal static int GetUnaryOperatorPrecedence(this SyntaxKind kind) =>
         kind switch
         {
-            SyntaxKind.PlusToken or SyntaxKind.MinusToken or SyntaxKind.BangToken => 6,
+            SyntaxKind.PlusToken or SyntaxKind.MinusToken or SyntaxKind.BangToken or SyntaxKind.TildeToken => 6,
             _ => 0
         };
 
@@ -57,6 +57,10 @@ public static class SyntaxFacts
             SyntaxKind.CloseParenthesisToken => ")",
             SyntaxKind.OpenBraceToken => "{",
             SyntaxKind.CloseBraceToken => "}",
+            SyntaxKind.TildeToken => "~",
+            SyntaxKind.AmpersandToken => "&",
+            SyntaxKind.PipeToken => "|",
+            SyntaxKind.HatToken => "^",
             SyntaxKind.FalseKeyword => "false",
             SyntaxKind.TrueKeyword => "true",
             SyntaxKind.LetKeyword => "let",
