@@ -2,7 +2,7 @@
 
 internal sealed class BoundLiteralExpression : BoundExpression
 {
-    public readonly object Value;
+    public object Value { get; }
     internal override Type Type => Value.GetType();
     internal override BoundNodeKind Kind => BoundNodeKind.LiteralExpression;
 
