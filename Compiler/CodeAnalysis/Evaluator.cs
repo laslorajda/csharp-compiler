@@ -45,7 +45,7 @@ internal class Evaluator
                 case BoundNodeKind.ConditionalGotoStatement:
                     var conditionalGoto = (BoundConditionalGotoStatement)statement;
                     var condition = (bool)EvaluateExpression(conditionalGoto.Condition);
-                    if (condition && !conditionalGoto.JumpIfFalse || !condition && conditionalGoto.JumpIfFalse)
+                    if (condition == conditionalGoto.JumpIfTrue)
                     {
                         index = labelToIndex[conditionalGoto.Label];
                     }

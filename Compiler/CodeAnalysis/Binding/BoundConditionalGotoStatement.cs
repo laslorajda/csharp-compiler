@@ -4,13 +4,13 @@ internal sealed class BoundConditionalGotoStatement : BoundStatement
 {
     public LabelSymbol Label { get; }
     public BoundExpression Condition { get; }
-    public bool JumpIfFalse { get; }
+    public bool JumpIfTrue { get; }
     internal override BoundNodeKind Kind => BoundNodeKind.ConditionalGotoStatement;
 
-    public BoundConditionalGotoStatement(LabelSymbol label, BoundExpression condition, bool jumpIfFalse)
+    public BoundConditionalGotoStatement(LabelSymbol label, BoundExpression condition, bool jumpIfTrue)
     {
         Label = label;
         Condition = condition;
-        JumpIfFalse = jumpIfFalse;
+        JumpIfTrue = jumpIfTrue;
     }
 }
