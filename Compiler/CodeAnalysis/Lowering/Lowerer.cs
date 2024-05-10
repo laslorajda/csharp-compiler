@@ -54,8 +54,10 @@ internal sealed class Lowerer : BoundTreeRewriter
     {
         var variableDeclaration = new BoundVariableDeclarationStatement(node.Variable, node.LowerBound);
         var variableExpression = new BoundVariableExpression(node.Variable);
+        var upperBoundSymbol = new VariableSymbol("upperBound", true, typeof(int));
+        var upperBoundDeclaration = new BoundVariableDeclarationStatement(upperBoundSymbol, node.UpperBound);
         var condition = new BoundBinaryExpression(variableExpression,
-            BoundBinaryOperator.Bind(SyntaxKind.LessOrEqualsToken, typeof(int), typeof(int)), node.UpperBound);
+            BoundBinaryOperator.Bind(SyntaxKind.LessOrEqualsToken, typeof(int), typeof(int)), new BoundVariableExpression(upperBoundSymbol));
         var increment = new BoundExpressionStatement(
             new BoundAssignmentExpression(node.Variable, new BoundBinaryExpression(
                 variableExpression,
@@ -66,7 +68,7 @@ internal sealed class Lowerer : BoundTreeRewriter
         var whileBody = new BoundBlockStatement([node.Body, increment]);
         var whileSatatement = new BoundWhileStatement(condition, whileBody);
 
-        var result = new BoundBlockStatement([variableDeclaration, whileSatatement]);
+        var result = new BoundBlockStatement([variableDeclaration, upperBoundDeclaration, whileSatatement]);
         return RewriteStatement(result);
     }
 
