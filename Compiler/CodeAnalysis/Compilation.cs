@@ -1,5 +1,6 @@
 ﻿using System.Collections.Immutable;
 using Compiler.CodeAnalysis.Binding;
+using Compiler.CodeAnalysis.Lowering;
 using Compiler.CodeAnalysis.Syntax;
 
 namespace Compiler.CodeAnalysis;
@@ -46,9 +47,18 @@ public sealed class Compilation
             return new EvaluationResult(diagnostics, null!);
         }
         
-        var evaluator = new Evaluator(GlobalScope.Statement, variables);
+        var statement = GetStatement();
+        var evaluator = new Evaluator(statement, variables);
         var value = evaluator.Evaluate();
 
         return new EvaluationResult(ImmutableArray<Diagnostic>.Empty, value);
     }
+
+    public void EmiteTree(TextWriter writer)
+    {
+        var statement = GetStatement();
+        statement.WriteTo(writer);
+    }
+
+    private BoundBlockStatement GetStatement() => Lowerer.Lower(GlobalScope.Statement);
 }

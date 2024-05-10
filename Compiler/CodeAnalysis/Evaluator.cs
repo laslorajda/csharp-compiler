@@ -4,11 +4,11 @@ namespace Compiler.CodeAnalysis;
 
 internal class Evaluator
 {
-    private readonly BoundStatement _root;
+    private readonly BoundBlockStatement _root;
     private readonly Dictionary<VariableSymbol, object> _variables;
     private object _lastValue = default!;
     
-    public Evaluator(BoundStatement root, Dictionary<VariableSymbol, object> variables)
+    public Evaluator(BoundBlockStatement root, Dictionary<VariableSymbol, object> variables)
     {
         _root = root;
         _variables = variables;
@@ -16,7 +16,55 @@ internal class Evaluator
 
     public object Evaluate()
     {
-        EvaluateStatement(_root);
+        var labelToIndex = new Dictionary<LabelSymbol, int>();
+
+        for (var i = 0; i < _root.Statements.Length; i++)
+        {
+            var statement = _root.Statements[i];
+            if (statement is BoundLabelStatement l)
+            {
+                labelToIndex.Add(l.Label, i + 1);
+            }
+        }
+
+        var index = 0;
+        while (index < _root.Statements.Length)
+        {
+            var statement = _root.Statements[index];
+            // ReSharper disable once SwitchStatementHandlesSomeKnownEnumValuesWithDefault
+            switch (statement.Kind)
+            {
+                case BoundNodeKind.VariableDeclarationStatement:
+                    EvaludateVariableDeclarationStatement((BoundVariableDeclarationStatement)statement);
+                    index++;
+                    break;
+                case BoundNodeKind.ExpressionStatement:
+                    EvaluateExpressionStatement((BoundExpressionStatement)statement);
+                    index++;
+                    break;
+                case BoundNodeKind.ConditionalGotoStatement:
+                    var conditionalGoto = (BoundConditionalGotoStatement)statement;
+                    var condition = (bool)EvaluateExpression(conditionalGoto.Condition);
+                    if (condition && !conditionalGoto.JumpIfFalse || !condition && conditionalGoto.JumpIfFalse)
+                    {
+                        index = labelToIndex[conditionalGoto.Label];
+                    }
+                    else
+                    {
+                        index++;
+                    }
+                    break;
+                case BoundNodeKind.GotoStatement:
+                    index = labelToIndex[((BoundGotoStatement)statement).Label];
+                    break;
+                case BoundNodeKind.LabelStatement:
+                    index++;
+                    break;
+                default:
+                    throw new Exception($"Unexpected node {statement.Kind}");
+            }
+        }
+
         return _lastValue;
     }
 
@@ -33,81 +81,6 @@ internal class Evaluator
                 BoundBinaryExpression expression => EvaluateBinaryExpression(expression),
                 _ => throw new Exception($"Unexpected node {node.Kind}")
             };
-        }
-    }
-
-    private void EvaluateStatement(BoundStatement statement)
-    {
-        switch (statement.Kind)
-        {
-            case BoundNodeKind.BlockStatement:
-                EvaluateBlockStatement((BoundBlockStatement)statement);
-                break;
-            case BoundNodeKind.VariableDeclarationStatement:
-                EvaludateVariableDeclarationStatement((BoundVariableDeclarationStatement)statement);
-                break;
-            case BoundNodeKind.IfStatement:
-                EvaluateIfStatement((BoundIfStatement)statement);
-                break;
-            case BoundNodeKind.WhileStatement:
-                EvaluateWhileStatement((BoundWhileStatement)statement);
-                break;
-            case BoundNodeKind.ForStatement:
-                EvaluateForStatement((BoundForStatement)statement);
-                break;
-            case BoundNodeKind.ExpressionStatement:
-                EvaluateExpressionStatement((BoundExpressionStatement)statement);
-                break;
-            case BoundNodeKind.UnaryExpression:
-            case BoundNodeKind.LiteralExpression:
-            case BoundNodeKind.BinaryExpression:
-            case BoundNodeKind.VariableExpression:
-            case BoundNodeKind.AssignmentExpression:
-            default:
-                throw new Exception($"Unexpected statement {statement.Kind}");
-        }
-    }
-
-    private void EvaluateBlockStatement(BoundBlockStatement node)
-    {
-        foreach (var statement in node.Statements)
-        {
-            EvaluateStatement(statement);
-        }
-    }
-
-    private void EvaluateIfStatement(BoundIfStatement node)
-    {
-        var condition = (bool)EvaluateExpression(node.Condition);
-        if (condition)
-        {
-            EvaluateStatement(node.ThenStatement);
-        }
-        else if (node.ElseStatement != null)
-        {
-            EvaluateStatement(node.ElseStatement);
-        }
-    }
-
-    private void EvaluateWhileStatement(BoundWhileStatement node)
-    {
-        var condition = (bool)EvaluateExpression(node.Condition);
-        while (condition)
-        {
-            EvaluateStatement(node.Body);
-            condition = (bool)EvaluateExpression(node.Condition);
-        }
-    }
-
-    private void EvaluateForStatement(BoundForStatement node)
-    {
-        var lowerBound = (int)EvaluateExpression(node.LowerBound);
-        var upperBound = (int)EvaluateExpression(node.UpperBound);
-        
-        for(var i = lowerBound; i <= upperBound; i++)
-        {
-            _variables[node.Variable] = i;
-            EvaluateStatement(node.Body);
         }
     }
 
@@ -146,6 +119,7 @@ internal class Evaluator
             BoundUnaryOperatorKind.Identity => operand,
             BoundUnaryOperatorKind.Negation => -(int) operand,
             BoundUnaryOperatorKind.LogicalNegation => !(bool) operand,
+            BoundUnaryOperatorKind.OnesComplement => ~(int) operand,
             _ => throw new Exception($"Unexpected unary operator {node.Operator}")
         };
     }
@@ -157,18 +131,27 @@ internal class Evaluator
 
         return b.Operator?.Kind switch
         {
-            BoundBinaryOperatorKind.Addition => (int) left + (int) right,
-            BoundBinaryOperatorKind.Subtraction => (int) left - (int) right,
-            BoundBinaryOperatorKind.Multiplication => (int) left * (int) right,
-            BoundBinaryOperatorKind.Division => (int) left / (int) right,
-            BoundBinaryOperatorKind.LogicalAnd => (bool) left && (bool) right,
-            BoundBinaryOperatorKind.LogicalOr => (bool) left || (bool) right,
+            BoundBinaryOperatorKind.Addition => (int)left + (int)right,
+            BoundBinaryOperatorKind.Subtraction => (int)left - (int)right,
+            BoundBinaryOperatorKind.Multiplication => (int)left * (int)right,
+            BoundBinaryOperatorKind.Division => (int)left / (int)right,
+            BoundBinaryOperatorKind.BitwiseAnd => b.Type == typeof(int)
+                ? (int)left & (int)right
+                : (bool)left & (bool)right,
+            BoundBinaryOperatorKind.BitwiseOr => b.Type == typeof(int)
+                ? (int)left | (int)right
+                : (bool)left | (bool)right,
+            BoundBinaryOperatorKind.BitwiseXor => b.Type == typeof(int)
+                ? (int)left ^ (int)right
+                : (bool)left ^ (bool)right,
+            BoundBinaryOperatorKind.LogicalAnd => (bool)left && (bool)right,
+            BoundBinaryOperatorKind.LogicalOr => (bool)left || (bool)right,
             BoundBinaryOperatorKind.Equals => Equals(left, right),
             BoundBinaryOperatorKind.NotEquals => !Equals(left, right),
             BoundBinaryOperatorKind.Less => (int)left < (int)right,
-            BoundBinaryOperatorKind.LessOrEquals => (int)left <= (int) right,
-            BoundBinaryOperatorKind.Greater => (int)left > (int) right,
-            BoundBinaryOperatorKind.GreaterOrEquals => (int)left >= (int) right,
+            BoundBinaryOperatorKind.LessOrEquals => (int)left <= (int)right,
+            BoundBinaryOperatorKind.Greater => (int)left > (int)right,
+            BoundBinaryOperatorKind.GreaterOrEquals => (int)left >= (int)right,
             _ => throw new Exception($"Unexpected binary operator {b.Operator}")
         };
     }
