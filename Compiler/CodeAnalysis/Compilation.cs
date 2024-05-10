@@ -60,5 +60,5 @@ public sealed class Compilation
         statement.WriteTo(writer);
     }
 
-    private BoundStatement GetStatement() => Lowerer.Lower(GlobalScope.Statement);
+    private BoundBlockStatement GetStatement() => Lowerer.Lower(GlobalScope.Statement);
 }
