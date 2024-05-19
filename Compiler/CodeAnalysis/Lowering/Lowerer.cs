@@ -54,8 +54,10 @@ internal sealed class Lowerer : BoundTreeRewriter
     {
         var variableDeclaration = new BoundVariableDeclarationStatement(node.Variable, node.LowerBound);
         var variableExpression = new BoundVariableExpression(node.Variable);
+        var upperBoundSymbol = new VariableSymbol("upperBound", true, typeof(int));
+        var upperBoundDeclaration = new BoundVariableDeclarationStatement(upperBoundSymbol, node.UpperBound);
         var condition = new BoundBinaryExpression(variableExpression,
-            BoundBinaryOperator.Bind(SyntaxKind.LessOrEqualsToken, typeof(int), typeof(int)), node.UpperBound);
+            BoundBinaryOperator.Bind(SyntaxKind.LessOrEqualsToken, typeof(int), typeof(int)), new BoundVariableExpression(upperBoundSymbol));
         var increment = new BoundExpressionStatement(
             new BoundAssignmentExpression(node.Variable, new BoundBinaryExpression(
                 variableExpression,
@@ -66,7 +68,7 @@ internal sealed class Lowerer : BoundTreeRewriter
         var whileBody = new BoundBlockStatement([node.Body, increment]);
         var whileSatatement = new BoundWhileStatement(condition, whileBody);
 
-        var result = new BoundBlockStatement([variableDeclaration, whileSatatement]);
+        var result = new BoundBlockStatement([variableDeclaration, upperBoundDeclaration, whileSatatement]);
         return RewriteStatement(result);
     }
 
@@ -77,13 +79,13 @@ internal sealed class Lowerer : BoundTreeRewriter
 
         if (node.ElseStatement == null)
         {
-            var gotoFalseStatement = new BoundConditionalGotoStatement(endLabel, node.Condition, true);
+            var gotoFalseStatement = new BoundConditionalGotoStatement(endLabel, node.Condition, false);
             var result = new BoundBlockStatement([gotoFalseStatement, node.ThenStatement, endLabelStatement]);
             return RewriteStatement(result);
         }
 
         var elseLabel = GenerateLabel();
-        var gotoFalse = new BoundConditionalGotoStatement(elseLabel, node.Condition, true);
+        var gotoFalse = new BoundConditionalGotoStatement(elseLabel, node.Condition, false);
         var gotoEndStatement = new BoundGotoStatement(endLabel);
         var elseLabelStatement = new BoundLabelStatement(elseLabel);
         var resultWithElse = new BoundBlockStatement([
@@ -103,7 +105,7 @@ internal sealed class Lowerer : BoundTreeRewriter
         var gotoCheckStatement = new BoundGotoStatement(checkLabel);
         var continueLabelStatement = new BoundLabelStatement(continueLabel);
         var checkLabelStatement = new BoundLabelStatement(checkLabel);
-        var gotoTrue = new BoundConditionalGotoStatement(continueLabel, node.Condition, false);
+        var gotoTrue = new BoundConditionalGotoStatement(continueLabel, node.Condition, true);
         var endLabelStatement = new BoundLabelStatement(endLabel);
 
         var result = new BoundBlockStatement([

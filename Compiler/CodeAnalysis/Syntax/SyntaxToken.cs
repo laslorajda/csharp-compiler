@@ -18,4 +18,5 @@ public class SyntaxToken : SyntaxNode
     public string Text { get; }
     public int Position { get; }
     public override TextSpan Span => new(Position, Text.Length);
+    public bool IsMissing => string.IsNullOrEmpty(Text);
 }
