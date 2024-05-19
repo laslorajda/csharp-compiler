@@ -43,7 +43,20 @@ internal sealed class MyRepl : Repl
         }
 
         var syntaxTree = SyntaxTree.Parse(text);
-        return !syntaxTree.Diagnostics.Any();
+        return GetLastToken(syntaxTree.Root.Statement).IsMissing;
+    }
+
+    private static SyntaxToken GetLastToken(SyntaxNode node)
+    {
+        while (true)
+        {
+            if (node is SyntaxToken token)
+            {
+                return token;
+            }
+
+            node = node.GetChildren().Last();
+        }
     }
 
     protected override void EvaluateSubmission(string text)
